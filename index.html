@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prontuário Odontológico - Dr. Pedro Sindeaux Pinheiro</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+  <div class="container">
+    <!-- CABEÇALHO CLÍNICO -->
+    <header class="clinic-header">
+      <div class="logo-area">
+        <img src="logo.png" alt="Logótipo Dr. Pedro Sindeaux Pinheiro" class="clinic-logo" onerror="this.style.display='none'">
+        <div class="header-titles">
+          <h1>Dr. Pedro Sindeaux Pinheiro</h1>
+          <p class="cro">CRO CE 10096</p>
+          <p class="subtitle">Cirurgia, Prótese e Clínica Dentária</p>
+          <p class="clinic-contact-info">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | Tel/WhatsApp: (85) 92001-0167</p>
+        </div>
+      </div>
+
+      <div class="action-buttons no-print">
+        <button id="btnNovoPaciente" class="btn btn-outline-primary">+ Novo Paciente</button>
+        <button id="btnSave" class="btn btn-primary">Gravar Paciente</button>
+        <button id="btnPrint" class="btn btn-secondary" onclick="window.print()">Imprimir / PDF</button>
+      </div>
+    </header>
+
+    <!-- BARRA DE PESQUISA DE PACIENTES CADASTRADOS (APENAS ECRÃ) -->
+    <section class="search-section no-print">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="inputBuscaPaciente" placeholder="Pesquisar paciente por Nome ou CPF..." autocomplete="off">
+        <button id="btnClearSearch" class="btn-clear-search" title="Limpar pesquisa">&times;</button>
+      </div>
+      <div id="searchResultsList" class="search-results-dropdown"></div>
+    </section>
+
+    <!-- NAVEGAÇÃO DE SEPARADORES -->
+    <nav class="nav-tabs no-print">
+      <button class="tab-btn active" data-tab="tab-anamnese">1. Anamnese</button>
+      <button class="tab-btn" data-tab="tab-odontograma">2. Odontograma & Tratamento</button>
+      <button class="tab-btn" data-tab="tab-receituario-comum">3. Receituário Comum</button>
+      <button class="tab-btn" data-tab="tab-receituario-controlado">4. Receituário Especial</button>
+      <button class="tab-btn" data-tab="tab-atestado">5. Atestado</button>
+      <button class="tab-btn" data-tab="tab-declaracao">6. Declaração</button>
+    </nav>
+
+    <!-- DADOS GERAIS DO PACIENTE -->
+    <section class="patient-card">
+      <div class="patient-card-header">
+        <span class="badge-status" id="badgePacienteAtual">Modo: Novo Cadastro</span>
+        <button type="button" id="btnExcluirPaciente" class="btn-text-danger no-print" style="display: none;">Excluir este Paciente</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group col-span-2">
+          <label for="pacienteNome">Nome Completo do Paciente: *</label>
+          <input type="text" id="pacienteNome" placeholder="Ex.: Maria Francisca Silva" required>
+        </div>
+        <div class="form-group">
+          <label for="pacienteDataNasc">Data de Nascimento:</label>
+          <input type="date" id="pacienteDataNasc">
+        </div>
+        <div class="form-group">
+          <label for="pacienteCPF">CPF / Doc (obrigatório p/ receita):</label>
+          <input type="text" id="pacienteCPF" placeholder="000.000.000-00">
+        </div>
+
+        <div class="form-group col-span-2">
+          <label for="pacienteTel">Telemóvel / WhatsApp:</label>
+          <input type="tel" id="pacienteTel" placeholder="(85) 90000-0000">
+        </div>
+        <div class="form-group col-span-2">
+          <label for="pacienteEmergencia">Contacto de Emergência:</label>
+          <input type="text" id="pacienteEmergencia" placeholder="Nome / Telefone">
+        </div>
+
+        <div class="form-group">
+          <label for="pacienteCEP">CEP:</label>
+          <input type="text" id="pacienteCEP" placeholder="60000-000" maxlength="9">
+        </div>
+        <div class="form-group col-span-2">
+          <label for="pacienteLogradouro">Endereço (Rua, Av., Número e Complemento):</label>
+          <input type="text" id="pacienteLogradouro" placeholder="Ex.: Rua Major Facundo, 123 - Apto 402">
+        </div>
+        <div class="form-group">
+          <label for="pacienteBairroCidade">Bairro / Cidade - UF:</label>
+          <input type="text" id="pacienteBairroCidade" placeholder="Ex.: Aldeota, Fortaleza - CE">
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 1: ANAMNESE -->
+    <main id="tab-anamnese" class="tab-content active">
+      <div class="section-box">
+        <h2 class="section-title">Queixa Principal & História Médica</h2>
+        <div class="form-grid">
+          <div class="form-group col-span-3">
+            <label for="queixaPrincipal">Queixa Principal (com as palavras do paciente):</label>
+            <input type="text" id="queixaPrincipal" placeholder="Ex.: Dor no dente de trás ao mastigar ou tomar gelado">
+          </div>
+          <div class="form-group">
+            <label for="tempoEvolucao">Início dos Sintomas:</label>
+            <input type="text" id="tempoEvolucao" placeholder="Ex.: Há 3 dias">
+          </div>
+          <div class="form-group">
+            <label for="escalaDor">Escala de Dor (0 a 10):</label>
+            <input type="number" id="escalaDor" min="0" max="10" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label for="ultimaVisita">Última Consulta Dentária:</label>
+            <input type="text" id="ultimaVisita" placeholder="Ex.: Há mais de 1 ano">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-box">
+        <h2 class="section-title">Questionário de Saúde e Risco Cirúrgico</h2>
+        <table class="anamnese-table">
+          <thead>
+            <tr>
+              <th>Condição Médica / Pergunta</th>
+              <th style="width: 70px; text-align: center;">Sim</th>
+              <th style="width: 70px; text-align: center;">Não</th>
+              <th>Detalhes / Observações Clínicas</th>
+            </tr>
+          </thead>
+          <tbody id="anamneseTbody">
+            <tr data-key="med_tratamento">
+              <td>Encontra-se sob tratamento médico atualmente?</td>
+              <td class="text-center"><input type="radio" name="med_tratamento" value="sim"></td>
+              <td class="text-center"><input type="radio" name="med_tratamento" value="nao" checked></td>
+              <td><input type="text" class="table-input" placeholder="Qual o motivo/especialidade?"></td>
+            </tr>
+            <tr data-key="med_continuo">
+              <td>Toma algum medicamento de uso contínuo?</td>
+              <td class="text-center"><input type="radio" name="med_continuo" value="sim"></td>
+              <td class="text-center"><input type="radio" name="med_continuo" value="nao" checked></td>
+              <td><input type="text" class="table-input" placeholder="Medicamentos e dosagens"></td>
+            </tr>
+            <tr data-key="med_alergia" class="alert-row">
+              <td><strong>Possui alergia a medicamentos, anestésicos ou látex?</strong></td>
+              <td class="text-center"><input type="radio" name="med_alergia" value="sim"></td>
+              <td class="text-center"><input type="radio" name="med_alergia" value="nao" checked></td>
+              <td><input type="text" class="table-input highlight-field" placeholder="Descrever as alergias conhecidas"></td>
+            </tr>
+            <tr data-key="med_cardio" class="alert-row">
+              <td><strong>Problemas cardíacos, hipertensão ou arritmia?</strong></td>
+              <td class="text-center"><input type="radio" name="med_cardio" value="sim"></td>
+              <td class="text-center"><input type="radio" name="med_cardio" value="nao" checked></td>
+              <td><input type="text" class="table-input" placeholder="Pressão habitual / medicação"></td>
+            </tr>
+            <tr data-key="med_bifosfonato" class="alert-row">
+              <td><strong>Usa anticoagulantes ou bifosfonatos (ex: alendronato)?</strong></td>
+              <td class="text-center"><input type="radio" name="med_bifosfonato" value="sim"></td>
+              <td class="text-center"><input type="radio" name="med_bifosfonato" value="nao" checked></td>
+              <td><input type="text" class="table-input highlight-field" placeholder="Tempo de utilização e indicação"></td>
+            </tr>
+            <tr data-key="med_diabetes">
+              <td>Diabetes?</td>
+              <td class="text-center"><input type="radio" name="med_diabetes" value="sim"></td>
+              <td class="text-center"><input type="radio" name="med_diabetes" value="nao" checked></td>
+              <td><input type="text" class="table-input" placeholder="Glicemia média / controlada?"></td>
+            </tr>
+            <tr data-key="med_asma">
+              <td>Doenças respiratórias (Asma, bronquite)?</td>
+              <td class="text-center"><input type="radio" name="med_asma" value="sim"></td>
+              <td class="text-center"><input type="radio" name="med_asma" value="nao" checked></td>
+              <td><input type="text" class="table-input" placeholder="Frequência de crises / uso de inalador"></td>
+            </tr>
+            <tr data-key="med_hemorragia">
+              <td>Histórico de hemorragia ou sangramento excessivo?</td>
+              <td class="text-center"><input type="radio" name="med_hemorragia" value="sim"></td>
+              <td class="text-center"><input type="radio" name="med_hemorragia" value="nao" checked></td>
+              <td><input type="text" class="table-input" placeholder="Em cirurgias ou extrações anteriores"></td>
+            </tr>
+            <tr data-key="med_fumo">
+              <td>Fumador ou consome bebidas alcoólicas com frequência?</td>
+              <td class="text-center"><input type="radio" name="med_fumo" value="sim"></td>
+              <td class="text-center"><input type="radio" name="med_fumo" value="nao" checked></td>
+              <td><input type="text" class="table-input" placeholder="Quantidade diária / semanal"></td>
+            </tr>
+            <tr data-key="med_atm">
+              <td>Aperta ou range os dentes / estalos na mandíbula (ATM)?</td>
+              <td class="text-center"><input type="radio" name="med_atm" value="sim"></td>
+              <td class="text-center"><input type="radio" name="med_atm" value="nao" checked></td>
+              <td><input type="text" class="table-input" placeholder="Sintomas matinais / dores na face"></td>
+            </tr>
+            <tr data-key="med_gestante">
+              <td>(Mulheres) Está grávida ou a amamentar?</td>
+              <td class="text-center"><input type="radio" name="med_gestante" value="sim"></td>
+              <td class="text-center"><input type="radio" name="med_gestante" value="nao" checked></td>
+              <td><input type="text" class="table-input" placeholder="Idade gestacional (semanas)"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TERMO DE VERACIDADE E CONSENTIMENTO INFORMADO -->
+      <div class="legal-box consent-section">
+        <h3 class="consent-title">5. Termo de Veracidade e Consentimento Informado</h3>
+        
+        <div class="consent-text">
+          <p>
+            <strong>1. Veracidade das Informações:</strong> Declaro que todas as respostas fornecidas no presente questionário de anamnese e histórico médico são fiéis à verdade e completas, não tendo omitido ou falseado qualquer dado relevante sobre o meu estado geral de saúde, tratamentos médicos pregressos ou vigentes, medicamentos em uso contínuo, alergias ou reações adversas anteriores. Comprometo-me formalmente a comunicar à equipa clínica qualquer alteração subsequente no meu estado de saúde ou posologia medicamentosa antes de cada atendimento.
+          </p>
+          <p>
+            <strong>2. Ciência de Riscos e Intercorrências:</strong> Fui devidamente informado(a) e esclarecido(a) quanto aos diagnósticos apurados, aos riscos biológicos inerentes aos procedimentos odontológicos propostos (tais como sensibilidade dentária transitória, edema, hematomas, parestesias temporárias ou eventuais intercorrências anestésicas) e às alternativas terapêuticas cabíveis.
+          </p>
+          <p>
+            <strong>3. Consentimento e LGPD:</strong> Autorizo o Cirurgião-Dentista responsável e a sua equipa clínica a executarem os procedimentos diagnósticos, exames radiográficos e condutas clínicas necessárias. Autorizo igualmente o tratamento confidencial dos meus dados cadastrais e de saúde, salvaguardados pelo sigilo profissional ético e em conformidade com a legislação de proteção de dados.
+          </p>
+        </div>
+
+        <div class="consent-date-location">
+          <span>Fortaleza - CE, </span>
+          <input type="text" class="input-inline-date" id="termoDataLocal" placeholder="____ de _________________ de 2026">
+        </div>
+
+        <div class="signatures-grid">
+          <div class="sig-line">
+            <div class="line"></div>
+            <span class="sig-name" id="sigPacienteNome">Assinatura do Paciente / Responsável Legal</span>
+            <span class="sig-doc">CPF / Grau de Parentesco: ____________________</span>
+          </div>
+          <div class="sig-line">
+            <div class="line"></div>
+            <span class="sig-name">Dr. Pedro Sindeaux Pinheiro</span>
+            <span class="sig-doc">Cirurgião-Dentista — CRO CE 10096</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ABA 2: ODONTOGRAMA & ORÇAMENTO -->
+    <main id="tab-odontograma" class="tab-content">
+      <section class="kpi-panel">
+        <div class="kpi-card">
+          <span class="kpi-title">Valor Total do Plano</span>
+          <span class="kpi-value" id="kpiTotal">R$ 0,00</span>
+        </div>
+        <div class="kpi-card executed">
+          <span class="kpi-title">Executado (Concluído)</span>
+          <span class="kpi-value" id="kpiExecutado">R$ 0,00</span>
+        </div>
+        <div class="kpi-card pending">
+          <span class="kpi-title">Saldo Restante</span>
+          <span class="kpi-value" id="kpiPendente">R$ 0,00</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-title">Progresso do Tratamento</span>
+          <span class="kpi-value" id="kpiPercent">0%</span>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progressBar"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-box">
+        <div class="section-header-flex">
+          <h2 class="section-title">Odontograma & Registro por Elemento</h2>
+          <span class="tag-badge">FDI (2 Dígitos)</span>
+        </div>
+
+        <div class="odontograma-cols">
+          <div class="quadrante-col">
+            <h3 class="col-title">Arcada Superior Direita (Q1)</h3>
+            <div class="dentes-list" id="q1List"></div>
+
+            <h3 class="col-title" style="margin-top: 24px;">Arcada Inferior Direita (Q4)</h3>
+            <div class="dentes-list" id="q4List"></div>
+          </div>
+
+          <div class="quadrante-col">
+            <h3 class="col-title">Arcada Superior Esquerda (Q2)</h3>
+            <div class="dentes-list" id="q2List"></div>
+
+            <h3 class="col-title" style="margin-top: 24px;">Arcada Inferior Esquerda (Q3)</h3>
+            <div class="dentes-list" id="q3List"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-box">
+        <div class="section-header-flex">
+          <h2 class="section-title">Outros Procedimentos Globais</h2>
+          <button type="button" id="btnAddExtra" class="btn btn-sm btn-outline-primary no-print">+ Adicionar Procedimento</button>
+        </div>
+        <div id="extraProceduresList" class="extra-list"></div>
+      </section>
+
+      <section class="payment-box">
+        <div class="payment-fields">
+          <div class="form-group">
+            <label for="condicaoPgto">Condições de Pagamento / Parcelamento:</label>
+            <input type="text" id="condicaoPgto" placeholder="Ex.: Entrada de 50% + 3x no cartão de crédito sem juros">
+          </div>
+          <div class="form-group">
+            <label for="descontoReais">Desconto Concedido (R$):</label>
+            <input type="number" id="descontoReais" step="0.01" min="0" value="0.00">
+          </div>
+        </div>
+        <div class="payment-summary">
+          <p>Subtotal Bruto: <strong id="lblSubtotal">R$ 0,00</strong></p>
+          <p>Desconto Aplicado: <strong id="lblDesconto">R$ 0,00</strong></p>
+          <p class="final-price">Total Líquido do Tratamento: <strong id="lblLiquido">R$ 0,00</strong></p>
+        </div>
+      </section>
+
+      <div class="legal-box">
+        <p><strong>Aprovação do Plano de Tratamento:</strong> Declaro que tomei conhecimento de todas as opções de tratamento, valores propostos e prazos previstos, estando de pleno acordo com as condições estipuladas.</p>
+        <div class="signatures-grid">
+          <div class="sig-line">
+            <div class="line"></div>
+            <span>Assinatura do Paciente / Responsável</span>
+          </div>
+          <div class="sig-line">
+            <div class="line"></div>
+            <span>Dr. Pedro Sindeaux Pinheiro - CRO CE 10096</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ABA 3: RECEITUÁRIO COMUM -->
+    <main id="tab-receituario-comum" class="tab-content doc-page doc-portrait">
+      <div class="doc-header">
+        <img src="logo.png" alt="Logótipo" class="doc-logo" onerror="this.style.display='none'">
+        <div class="doc-dentist-info">
+          <h2>Dr. Pedro Sindeaux Pinheiro</h2>
+          <p class="cro">Cirurgião-Dentista — CRO CE 10096</p>
+          <p class="subtitle">Cirurgia, Prótese e Clínica Dentária</p>
+          <p class="doc-address">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | Tel/WhatsApp: (85) 92001-0167</p>
+        </div>
+      </div>
+
+      <div class="doc-title-bar">
+        <h3>RECEITUÁRIO ODONTOLÓGICO</h3>
+      </div>
+
+      <div class="doc-patient-info">
+        <p><strong>Paciente:</strong> <span class="bind-nome">____________________________________________________</span></p>
+      </div>
+
+      <div class="prescription-body">
+        <label class="doc-field-label no-print">Prescrição e Posologia:</label>
+        <textarea id="rcPrescricao" class="doc-textarea" rows="12" placeholder="Uso Interno:&#10;&#10;1. Dipirona Monoidratada 500mg/mL gotas ou comprimido 500mg ------ 1 cx&#10;   Tomar 1 comprimido (ou 35 gotas) de 6 em 6 horas se dor.&#10;&#10;2. Dexametasona 4mg ---------------------------------------------- 1 cx&#10;   Tomar 1 comprimido 1 hora antes do procedimento cirúrgico."></textarea>
+      </div>
+
+      <div class="doc-footer">
+        <div class="doc-date-city">
+          Fortaleza - CE, <span class="bind-data-atual"></span>
+        </div>
+        <div class="doc-sig-box">
+          <div class="doc-sig-line"></div>
+          <strong>Dr. Pedro Sindeaux Pinheiro</strong>
+          <span>CRO CE 10096</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- ABA 4: RECEITUÁRIO DE ANTIMICROBIANOS (2 VIAS LADO A LADO - PAISAGEM) -->
+    <main id="tab-receituario-controlado" class="tab-content doc-landscape-container">
+      <div class="landscape-sheet">
+        <!-- 1ª VIA: FARMÁCIA -->
+        <div class="via-column via-farmacia">
+          <div class="doc-header mini">
+            <img src="logo.png" alt="Logótipo" class="doc-logo-mini" onerror="this.style.display='none'">
+            <div class="doc-dentist-info">
+              <h2>Dr. Pedro Sindeaux Pinheiro</h2>
+              <p class="cro">CRO CE 10096 — Cirurgia, Prótese e Clínica Dentária</p>
+              <p class="doc-address mini">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | (85) 92001-0167</p>
+            </div>
+          </div>
+          <div class="via-tag">1ª VIA — RETENÇÃO DA FARMÁCIA</div>
+          <div class="doc-title-bar mini">
+            <h3>RECEITA DE CONTROLE ESPECIAL</h3>
+          </div>
+
+          <div class="doc-patient-card-mini">
+            <p><strong>Paciente:</strong> <span class="bind-nome"></span></p>
+            <p><strong>CPF:</strong> <span class="bind-cpf"></span> | <strong>Idade:</strong> <span class="bind-idade"></span></p>
+            <p><strong>Endereço:</strong> <span class="bind-endereco"></span></p>
+          </div>
+
+          <div class="prescription-body-mini">
+            <textarea class="doc-textarea mini bind-antibiotico-text" rows="7" placeholder="Prescrição do Antibiótico:&#10;1. Amoxicilina 500mg ------------------ 21 cápsulas&#10;   Tomar 1 cápsula via oral de 8 em 8 horas por 7 dias."></textarea>
+          </div>
+
+          <div class="doc-date-city mini">Fortaleza - CE, <span class="bind-data-atual"></span></div>
+
+          <div class="doc-sig-box mini">
+            <div class="doc-sig-line"></div>
+            <strong>Dr. Pedro Sindeaux Pinheiro</strong>
+            <span>Cirurgião-Dentista — CRO CE 10096</span>
+          </div>
+
+          <div class="rdc-anvisa-box">
+            <div class="rdc-section">
+              <span class="rdc-title">IDENTIFICAÇÃO DO COMPRADOR</span>
+              <p>Nome: ____________________________________</p>
+              <p>RG/Órgão: ________________ CPF: ____________</p>
+              <p>Endereço: _________________________________</p>
+              <p>Telefone: _________________ Assinatura: _______</p>
+            </div>
+            <div class="rdc-section">
+              <span class="rdc-title">IDENTIFICAÇÃO DO FORNECEDOR</span>
+              <p>Data do Atendimento: _____/_____/2026</p>
+              <p>Farmacêutico(a): ___________________________</p>
+              <p>Lote / Validade: ____________________________</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2ª VIA: PACIENTE -->
+        <div class="via-column via-paciente">
+          <div class="doc-header mini">
+            <img src="logo.png" alt="Logótipo" class="doc-logo-mini" onerror="this.style.display='none'">
+            <div class="doc-dentist-info">
+              <h2>Dr. Pedro Sindeaux Pinheiro</h2>
+              <p class="cro">CRO CE 10096 — Cirurgia, Prótese e Clínica Dentária</p>
+              <p class="doc-address mini">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | (85) 92001-0167</p>
+            </div>
+          </div>
+          <div class="via-tag">2ª VIA — ORIENTAÇÃO DO PACIENTE</div>
+          <div class="doc-title-bar mini">
+            <h3>RECEITA DE CONTROLE ESPECIAL</h3>
+          </div>
+
+          <div class="doc-patient-card-mini">
+            <p><strong>Paciente:</strong> <span class="bind-nome"></span></p>
+            <p><strong>CPF:</strong> <span class="bind-cpf"></span> | <strong>Idade:</strong> <span class="bind-idade"></span></p>
+            <p><strong>Endereço:</strong> <span class="bind-endereco"></span></p>
+          </div>
+
+          <div class="prescription-body-mini">
+            <textarea class="doc-textarea mini bind-antibiotico-text" rows="11" placeholder="Orientações e cuidados para o paciente tomar o antibiótico nos horários corretos sem interromper o tratamento..."></textarea>
+          </div>
+
+          <div class="patient-note-box">
+            <p><strong>Atenção:</strong> Respeite rigorosamente os horários e tome o medicamento durante todo o período determinado, mesmo que os sintomas desapareçam antes.</p>
+          </div>
+
+          <div class="doc-date-city mini">Fortaleza - CE, <span class="bind-data-atual"></span></div>
+
+          <div class="doc-sig-box mini">
+            <div class="doc-sig-line"></div>
+            <strong>Dr. Pedro Sindeaux Pinheiro</strong>
+            <span>Cirurgião-Dentista — CRO CE 10096</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ABA 5: ATESTADO ODONTOLÓGICO -->
+    <main id="tab-atestado" class="tab-content doc-page doc-portrait">
+      <div class="doc-header">
+        <img src="logo.png" alt="Logótipo" class="doc-logo" onerror="this.style.display='none'">
+        <div class="doc-dentist-info">
+          <h2>Dr. Pedro Sindeaux Pinheiro</h2>
+          <p class="cro">Cirurgião-Dentista — CRO CE 10096</p>
+          <p class="subtitle">Cirurgia, Prótese e Clínica Dentária</p>
+          <p class="doc-address">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | Tel/WhatsApp: (85) 92001-0167</p>
+        </div>
+      </div>
+
+      <div class="doc-title-bar">
+        <h3>ATESTADO ODONTOLÓGICO</h3>
+      </div>
+
+      <div class="doc-body-text">
+        <p class="atestado-p">
+          Atesto para os devidos fins que o(a) Sr.(a) <strong class="bind-nome">___________________________________</strong>, portador(a) do documento de identidade/CPF nº <strong class="bind-cpf">__________________</strong>, esteve sob os meus cuidados profissionais no dia de hoje, tendo sido submetido(a) a intervenção odontológica especializada, necessitando de <input type="number" id="atDias" value="1" min="1" class="doc-inline-input" style="width: 50px;"> dia(s) de repouso e convalescença para a sua recuperação, a contar a partir de <input type="date" id="atDataInicio" class="doc-inline-input">.
+        </p>
+
+        <div class="cid-group">
+          <label>
+            <input type="checkbox" id="chkCid"> Autorizo a inclusão do código da Classificação Internacional de Doenças (CID-10) neste atestado.
+          </label>
+          <div id="cidInputBox" style="display: none; margin-top: 8px;">
+            <span>Código CID-10: </span>
+            <input type="text" id="txtCid" class="doc-inline-input" placeholder="Ex.: K04.0 (Pulpite) / K01.1 (Dentes inclusos)" style="width: 320px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="doc-footer">
+        <div class="doc-date-city">
+          Fortaleza - CE, <span class="bind-data-atual"></span>
+        </div>
+        <div class="doc-sig-box">
+          <div class="doc-sig-line"></div>
+          <strong>Dr. Pedro Sindeaux Pinheiro</strong>
+          <span>CRO CE 10096</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- ABA 6: DECLARAÇÃO DE COMPARECIMENTO -->
+    <main id="tab-declaracao" class="tab-content doc-page doc-portrait">
+      <div class="doc-header">
+        <img src="logo.png" alt="Logótipo" class="doc-logo" onerror="this.style.display='none'">
+        <div class="doc-dentist-info">
+          <h2>Dr. Pedro Sindeaux Pinheiro</h2>
+          <p class="cro">Cirurgião-Dentista — CRO CE 10096</p>
+          <p class="subtitle">Cirurgia, Prótese e Clínica Dentária</p>
+          <p class="doc-address">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | Tel/WhatsApp: (85) 92001-0167</p>
+        </div>
+      </div>
+
+      <div class="doc-title-bar">
+        <h3>DECLARAÇÃO DE COMPARECIMENTO</h3>
+      </div>
+
+      <div class="doc-body-text">
+        <p class="atestado-p">
+          Declaro para os devidos fins de comprovação que o(a) Sr.(a) <strong class="bind-nome">___________________________________</strong>, portador(a) do documento/CPF nº <strong class="bind-cpf">__________________</strong>, compareceu a esta clínica odontológica na presente data para realização de consulta e procedimentos clínicos, tendo permanecido nas dependências do consultório no seguinte intervalo:
+        </p>
+        <div class="horario-box">
+          <span>Horário de Início: </span>
+          <input type="time" id="decHoraIni" class="doc-inline-input" value="14:00">
+          <span style="margin-left: 20px;">Horário de Término: </span>
+          <input type="time" id="decHoraFim" class="doc-inline-input" value="15:30">
+        </div>
+        <p class="doc-disclaimer-sub">
+          A presente declaração serve estritamente para justificar o período em que o paciente esteve em atendimento clínico, não concedendo dispensa de jornada integral.
+        </p>
+      </div>
+
+      <div class="doc-footer">
+        <div class="doc-date-city">
+          Fortaleza - CE, <span class="bind-data-atual"></span>
+        </div>
+        <div class="doc-sig-box">
+          <div class="doc-sig-line"></div>
+          <strong>Dr. Pedro Sindeaux Pinheiro</strong>
+          <span>CRO CE 10096</span>
+        </div>
+      </div>
+    </main>
+  </div> <!-- FECHO CORRETO DO CONTAINER -->
+
+  <script>
+    // DENTES POR QUADRANTE
+    const dentesQ1 = [
+      { id: '18', label: '18' }, { id: '17', label: '17' }, { id: '16', label: '16' },
+      { id: '15_55', label: '15 / 55' }, { id: '14_54', label: '14 / 54' },
+      { id: '13_53', label: '13 / 53' }, { id: '12_52', label: '12 / 52' }, { id: '11_51', label: '11 / 51' }
+    ];
+    const dentesQ2 = [
+      { id: '21_61', label: '21 / 61' }, { id: '22_62', label: '22 / 62' }, { id: '23_63', label: '23 / 63' },
+      { id: '24_64', label: '24 / 64' }, { id: '25_65', label: '25 / 65' }, { id: '26', label: '26' },
+      { id: '27', label: '27' }, { id: '28', label: '28' }
+    ];
+    const dentesQ4 = [
+      { id: '48', label: '48' }, { id: '47', label: '47' }, { id: '46', label: '46' },
+      { id: '45_85', label: '45 / 85' }, { id: '44_84', label: '44 / 84' },
+      { id: '43_83', label: '43 / 83' }, { id: '42_82', label: '42 / 82' }, { id: '41_81', label: '41 / 81' }
+    ];
+    const dentesQ3 = [
+      { id: '31_71', label: '31 / 71' }, { id: '32_72', label: '32 / 72' }, { id: '33_73', label: '33 / 73' },
+      { id: '34_74', label: '34 / 74' }, { id: '35_75', label: '35 / 75' }, { id: '36', label: '36' },
+      { id: '37', label: '37' }, { id: '38', label: '38' }
+    ];
+
+    function createToothRow(tooth) {
+      return `
+        <div class="tooth-row" data-tooth-id="${tooth.id}" data-status="pendente">
+          <span class="tooth-code">${tooth.label}</span>
+          <input type="text" class="tooth-proc" placeholder="Procedimento">
+          <div class="tooth-price-wrap">
+            <span class="cur-symbol">R$</span>
+            <input type="number" class="tooth-price" step="0.01" min="0" placeholder="0,00">
+          </div>
+          <select class="tooth-status">
+            <option value="pendente">Pendente</option>
+            <option value="andamento">Em Andamento</option>
+            <option value="realizado">Realizado</option>
+          </select>
+          <input type="date" class="tooth-date" title="Data de Realização">
+        </div>
+      `;
+    }
+
+    document.getElementById('q1List').innerHTML = dentesQ1.map(createToothRow).join('');
+    document.getElementById('q2List').innerHTML = dentesQ2.map(createToothRow).join('');
+    document.getElementById('q4List').innerHTML = dentesQ4.map(createToothRow).join('');
+    document.getElementById('q3List').innerHTML = dentesQ3.map(createToothRow).join('');
+
+    // NAVEGAÇÃO ENTRE ABAS
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        syncDocumentData();
+      });
+    });
+
+    // PROCEDIMENTOS EXTRAS
+    const extraContainer = document.getElementById('extraProceduresList');
+    function addExtraProcedure(desc = '', price = '', status = 'pendente', date = '') {
+      const div = document.createElement('div');
+      div.className = 'extra-row';
+      div.innerHTML = `
+        <input type="text" class="extra-desc" placeholder="Ex.: Profilaxia ultrassônica + Flúor" value="${desc}">
+        <div class="tooth-price-wrap">
+          <span class="cur-symbol">R$</span>
+          <input type="number" class="extra-price" step="0.01" min="0" placeholder="0,00" value="${price}">
+        </div>
+        <select class="extra-status" data-val="${status}">
+          <option value="pendente" ${status === 'pendente' ? 'selected' : ''}>Pendente</option>
+          <option value="andamento" ${status === 'andamento' ? 'selected' : ''}>Em Andamento</option>
+          <option value="realizado" ${status === 'realizado' ? 'selected' : ''}>Realizado</option>
+        </select>
+        <input type="date" class="extra-date" value="${date}">
+        <button type="button" class="btn-remove-extra no-print" title="Remover">&times;</button>
+      `;
+
+      const sel = div.querySelector('.extra-status');
+      const dInput = div.querySelector('.extra-date');
+
+      sel.addEventListener('change', (e) => {
+        sel.dataset.val = e.target.value;
+        if (e.target.value === 'realizado' && !dInput.value) {
+          dInput.value = new Date().toISOString().split('T')[0];
+        }
+        calcTotals();
+      });
+
+      div.querySelector('.btn-remove-extra').addEventListener('click', () => {
+        div.remove();
+        calcTotals();
+      });
+
+      div.querySelector('.extra-price').addEventListener('input', calcTotals);
+      extraContainer.appendChild(div);
+      calcTotals();
+    }
+    document.getElementById('btnAddExtra').addEventListener('click', () => addExtraProcedure());
+
+    // CÁLCULOS TOTAIS
+    function calcTotals() {
+      let subtotal = 0;
+      let executado = 0;
+      let totalItens = 0;
+      let concluidos = 0;
+
+      document.querySelectorAll('.tooth-row').forEach(row => {
+        const price = parseFloat(row.querySelector('.tooth-price').value) || 0;
+        const status = row.querySelector('.tooth-status').value;
+        const proc = row.querySelector('.tooth-proc').value.trim();
+
+        if (price > 0 || proc !== '') {
+          totalItens++;
+          subtotal += price;
+          if (status === 'realizado') {
+            concluidos++;
+            executado += price;
+            row.classList.add('is-done');
+          } else {
+            row.classList.remove('is-done');
+          }
+        }
+      });
+
+      document.querySelectorAll('.extra-row').forEach(row => {
+        const price = parseFloat(row.querySelector('.extra-price').value) || 0;
+        const status = row.querySelector('.extra-status').value;
+        const desc = row.querySelector('.extra-desc').value.trim();
+
+        if (price > 0 || desc !== '') {
+          totalItens++;
+          subtotal += price;
+          if (status === 'realizado') {
+            concluidos++;
+            executado += price;
+            row.classList.add('is-done');
+          } else {
+            row.classList.remove('is-done');
+          }
+        }
+      });
+
+      const desconto = parseFloat(document.getElementById('descontoReais').value) || 0;
+      const totalLiquido = Math.max(0, subtotal - desconto);
+      const pendente = Math.max(0, totalLiquido - executado);
+      const percent = totalItens > 0 ? Math.round((concluidos / totalItens) * 100) : 0;
+
+      const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+      document.getElementById('kpiTotal').textContent = fmt(totalLiquido);
+      document.getElementById('kpiExecutado').textContent = fmt(executado);
+      document.getElementById('kpiPendente').textContent = fmt(pendente);
+      document.getElementById('kpiPercent').textContent = `${percent}%`;
+      document.getElementById('progressBar').style.width = `${percent}%`;
+
+      document.getElementById('lblSubtotal').textContent = fmt(subtotal);
+      document.getElementById('lblDesconto').textContent = fmt(desconto);
+      document.getElementById('lblLiquido').textContent = fmt(totalLiquido);
+    }
+
+    document.querySelectorAll('.tooth-price').forEach(inp => inp.addEventListener('input', calcTotals));
+    document.getElementById('descontoReais').addEventListener('input', calcTotals);
+
+    document.querySelectorAll('.tooth-status').forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        const row = e.target.closest('.tooth-row');
+        row.dataset.status = e.target.value;
+        const dt = row.querySelector('.tooth-date');
+        if (e.target.value === 'realizado' && !dt.value) {
+          dt.value = new Date().toISOString().split('T')[0];
+        }
+        calcTotals();
+      });
+    });
+
+    // ==========================================
+    // SISTEMA MULTI-PACIENTES & PESQUISA INTELIGENTE
+    // ==========================================
+    const STORAGE_KEY = 'clinica_sindeaux_pacientes';
+    let currentPatientId = null;
+
+    function getAllPatients() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveAllPatients(patients) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(patients));
+    }
+
+    function resetForm() {
+      currentPatientId = null;
+      document.getElementById('pacienteNome').value = '';
+      document.getElementById('pacienteDataNasc').value = '';
+      document.getElementById('pacienteCPF').value = '';
+      document.getElementById('pacienteTel').value = '';
+      document.getElementById('pacienteEmergencia').value = '';
+      document.getElementById('queixaPrincipal').value = '';
+      document.getElementById('tempoEvolucao').value = '';
+      document.getElementById('escalaDor').value = '';
+      document.getElementById('ultimaVisita').value = '';
+      document.getElementById('condicaoPgto').value = '';
+      document.getElementById('descontoReais').value = '0.00';
+      document.getElementById('pacienteCEP').value = '';
+      document.getElementById('pacienteLogradouro').value = '';
+      document.getElementById('pacienteBairroCidade').value = '';
+
+      document.querySelectorAll('#anamneseTbody tr').forEach(tr => {
+        const name = tr.dataset.key;
+        const noRadio = tr.querySelector(`input[name="${name}"][value="nao"]`);
+        if (noRadio) noRadio.checked = true;
+        const textInp = tr.querySelector('.table-input');
+        if (textInp) textInp.value = '';
+      });
+
+      document.querySelectorAll('.tooth-row').forEach(row => {
+        row.querySelector('.tooth-proc').value = '';
+        row.querySelector('.tooth-price').value = '';
+        row.querySelector('.tooth-status').value = 'pendente';
+        row.dataset.status = 'pendente';
+        row.querySelector('.tooth-date').value = '';
+        row.classList.remove('is-done');
+      });
+
+      extraContainer.innerHTML = '';
+      addExtraProcedure('Profilaxia ultrassônica com jato de bicarbonato', '');
+
+      document.getElementById('badgePacienteAtual').textContent = 'Modo: Novo Cadastro';
+      document.getElementById('badgePacienteAtual').className = 'badge-status';
+      document.getElementById('btnExcluirPaciente').style.display = 'none';
+
+      calcTotals();
+      syncDocumentData();
+    }
+
+    function loadPatient(id) {
+      const patients = getAllPatients();
+      const p = patients[id];
+      if (!p) return;
+
+      currentPatientId = id;
+      document.getElementById('pacienteNome').value = p.nome || '';
+      document.getElementById('pacienteDataNasc').value = p.nasc || '';
+      document.getElementById('pacienteCPF').value = p.cpf || '';
+      document.getElementById('pacienteTel').value = p.tel || '';
+      document.getElementById('pacienteEmergencia').value = p.emergencia || '';
+      document.getElementById('queixaPrincipal').value = p.qp || '';
+      document.getElementById('tempoEvolucao').value = p.tempo || '';
+      document.getElementById('escalaDor').value = p.dor || '';
+      document.getElementById('ultimaVisita').value = p.ultima || '';
+      document.getElementById('condicaoPgto').value = p.condPgto || '';
+      document.getElementById('descontoReais').value = p.desconto || '0.00';
+      document.getElementById('pacienteCEP').value = p.cep || '';
+      document.getElementById('pacienteLogradouro').value = p.logradouro || '';
+      document.getElementById('pacienteBairroCidade').value = p.bairroCidade || '';
+
+      if (p.anamnese) {
+        document.querySelectorAll('#anamneseTbody tr').forEach(tr => {
+          const key = tr.dataset.key;
+          const aData = p.anamnese[key];
+          if (aData) {
+            const radio = tr.querySelector(`input[name="${key}"][value="${aData.resp}"]`);
+            if (radio) radio.checked = true;
+            const textInp = tr.querySelector('.table-input');
+            if (textInp) textInp.value = aData.obs || '';
+          }
+        });
+      }
+
+      if (p.teeth) {
+        p.teeth.forEach(t => {
+          const row = document.querySelector(`.tooth-row[data-tooth-id="${t.id}"]`);
+          if (row) {
+            row.querySelector('.tooth-proc').value = t.proc || '';
+            row.querySelector('.tooth-price').value = t.price || '';
+            row.querySelector('.tooth-status').value = t.status || 'pendente';
+            row.dataset.status = t.status || 'pendente';
+            row.querySelector('.tooth-date').value = t.date || '';
+          }
+        });
+      }
+
+      extraContainer.innerHTML = '';
+      if (p.extras && p.extras.length > 0) {
+        p.extras.forEach(ex => addExtraProcedure(ex.desc, ex.price, ex.status, ex.date));
+      } else {
+        addExtraProcedure('Profilaxia ultrassônica com jato de bicarbonato', '');
+      }
+
+      const badge = document.getElementById('badgePacienteAtual');
+      badge.textContent = `Paciente Ativo: ${p.nome}`;
+      badge.className = 'badge-status active-patient';
+      document.getElementById('btnExcluirPaciente').style.display = 'inline-block';
+
+      document.getElementById('searchResultsList').style.display = 'none';
+      document.getElementById('inputBuscaPaciente').value = '';
+
+      calcTotals();
+      syncDocumentData();
+    }
+
+    // GRAVAR PACIENTE NOVO OU ATUALIZAR
+    document.getElementById('btnSave').addEventListener('click', () => {
+      const nome = document.getElementById('pacienteNome').value.trim();
+      if (!nome) {
+        alert('Por favor, introduza o Nome Completo do paciente antes de gravar.');
+        document.getElementById('pacienteNome').focus();
+        return;
+      }
+
+      const patients = getAllPatients();
+      const patientId = currentPatientId || 'p_' + Date.now();
+
+      const anamneseData = {};
+      document.querySelectorAll('#anamneseTbody tr').forEach(tr => {
+        const key = tr.dataset.key;
+        if (key) {
+          const selectedRadio = tr.querySelector(`input[name="${key}"]:checked`);
+          const textInp = tr.querySelector('.table-input');
+          anamneseData[key] = {
+            resp: selectedRadio ? selectedRadio.value : 'nao',
+            obs: textInp ? textInp.value : ''
+          };
+        }
+      });
+
+      const teethData = [];
+      document.querySelectorAll('.tooth-row').forEach(row => {
+        teethData.push({
+          id: row.dataset.toothId,
+          proc: row.querySelector('.tooth-proc') ? row.querySelector('.tooth-proc').value : '',
+          price: row.querySelector('.tooth-price') ? row.querySelector('.tooth-price').value : '',
+          status: row.querySelector('.tooth-status') ? row.querySelector('.tooth-status').value : 'pendente',
+          date: row.querySelector('.tooth-date') ? row.querySelector('.tooth-date').value : ''
+        });
+      });
+
+      const extrasData = [];
+      document.querySelectorAll('.extra-row').forEach(row => {
+        extrasData.push({
+          desc: row.querySelector('.extra-desc') ? row.querySelector('.extra-desc').value : '',
+          price: row.querySelector('.extra-price') ? row.querySelector('.extra-price').value : '',
+          status: row.querySelector('.extra-status') ? row.querySelector('.extra-status').value : 'pendente',
+          date: row.querySelector('.extra-date') ? row.querySelector('.extra-date').value : ''
+        });
+      });
+
+      patients[patientId] = {
+        id: patientId,
+        nome: nome,
+        nasc: document.getElementById('pacienteDataNasc').value,
+        cpf: document.getElementById('pacienteCPF').value,
+        tel: document.getElementById('pacienteTel').value,
+        emergencia: document.getElementById('pacienteEmergencia').value,
+        cep: document.getElementById('pacienteCEP') ? document.getElementById('pacienteCEP').value : '',
+        logradouro: document.getElementById('pacienteLogradouro') ? document.getElementById('pacienteLogradouro').value : '',
+        bairroCidade: document.getElementById('pacienteBairroCidade') ? document.getElementById('pacienteBairroCidade').value : '',
+        qp: document.getElementById('queixaPrincipal').value,
+        tempo: document.getElementById('tempoEvolucao').value,
+        dor: document.getElementById('escalaDor').value,
+        ultima: document.getElementById('ultimaVisita').value,
+        condPgto: document.getElementById('condicaoPgto').value,
+        desconto: document.getElementById('descontoReais').value,
+        anamnese: anamneseData,
+        teeth: teethData,
+        extras: extrasData,
+        updatedAt: new Date().toISOString()
+      };
+
+      saveAllPatients(patients);
+      currentPatientId = patientId;
+
+      const badge = document.getElementById('badgePacienteAtual');
+      if (badge) {
+        badge.textContent = `Paciente Ativo: ${nome}`;
+        badge.className = 'badge-status active-patient';
+      }
+
+      const btnExcluir = document.getElementById('btnExcluirPaciente');
+      if (btnExcluir) {
+        btnExcluir.style.display = 'inline-block';
+      }
+
+      alert(`Registo de "${nome}" gravado com sucesso!`);
+    });
+
+    // BOTÃO NOVO PACIENTE
+    document.getElementById('btnNovoPaciente').addEventListener('click', () => {
+      if (confirm('Deseja iniciar o cadastro de um Novo Paciente? O formulário será limpo.')) {
+        resetForm();
+      }
+    });
+
+    // EXCLUIR PACIENTE
+    document.getElementById('btnExcluirPaciente').addEventListener('click', () => {
+      if (!currentPatientId) return;
+      const patients = getAllPatients();
+      const p = patients[currentPatientId];
+      if (p && confirm(`Tem a certeza de que deseja eliminar o registo de "${p.nome}"? Esta ação não pode ser revertida.`)) {
+        delete patients[currentPatientId];
+        saveAllPatients(patients);
+        resetForm();
+        alert('Paciente eliminado.');
+      }
+    });
+
+    // BUSCA EM TEMPO REAL
+    const searchInput = document.getElementById('inputBuscaPaciente');
+    const searchResults = document.getElementById('searchResultsList');
+    const clearSearchBtn = document.getElementById('btnClearSearch');
+
+    function renderSearchResults(term) {
+      const patients = getAllPatients();
+      const list = Object.values(patients);
+      const query = term.toLowerCase().trim();
+
+      if (!query) {
+        searchResults.style.display = 'none';
+        return;
+      }
+
+      const filtered = list.filter(p => {
+        const matchNome = p.nome && p.nome.toLowerCase().includes(query);
+        const matchCpf = p.cpf && p.cpf.toLowerCase().includes(query);
+        const matchTel = p.tel && p.tel.includes(query);
+        return matchNome || matchCpf || matchTel;
+      });
+
+      if (filtered.length === 0) {
+        searchResults.innerHTML = `<div class="search-item empty">Nenhum paciente encontrado para "${term}"</div>`;
+        searchResults.style.display = 'block';
+        return;
+      }
+
+      searchResults.innerHTML = filtered.map(p => `
+        <div class="search-item" data-id="${p.id}">
+          <div class="search-item-info">
+            <span class="search-item-name">${p.nome}</span>
+            <span class="search-item-meta">CPF: ${p.cpf || 'Não informado'} | Tel: ${p.tel || 'Não informado'}</span>
+          </div>
+          <span class="btn-select-tag">Carregar Ficha &rarr;</span>
+        </div>
+      `).join('');
+
+      searchResults.style.display = 'block';
+
+      searchResults.querySelectorAll('.search-item:not(.empty)').forEach(item => {
+        item.addEventListener('click', () => {
+          loadPatient(item.dataset.id);
+        });
+      });
+    }
+
+    searchInput.addEventListener('input', (e) => renderSearchResults(e.target.value));
+
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchResults.style.display = 'none';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-section')) {
+        searchResults.style.display = 'none';
+      }
+    });
+
+    // BUSCA AUTOMÁTICA DE CEP (VIACEP)
+    document.getElementById('pacienteCEP').addEventListener('blur', function() {
+      const cep = this.value.replace(/\D/g, '');
+      if (cep.length === 8) {
+        fetch(`https://viacep.com.br/ws/${cep}/json/`)
+          .then(res => res.json())
+          .then(data => {
+            if (!data.erro) {
+              document.getElementById('pacienteLogradouro').value = data.logradouro ? `${data.logradouro}, ` : '';
+              document.getElementById('pacienteBairroCidade').value = `${data.bairro || ''}, ${data.localidade || ''} - ${data.uf || ''}`;
+              document.getElementById('pacienteLogradouro').focus();
+              syncDocumentData();
+            }
+          })
+          .catch(err => console.error('Erro na consulta do CEP:', err));
+      }
+    });
+
+    // ==========================================
+    // INTEGRAÇÃO DOS DOCUMENTOS CLÍNICOS
+    // ==========================================
+    function syncDocumentData() {
+      const nome = document.getElementById('pacienteNome').value.trim() || '_______________________________________';
+      const cpf = document.getElementById('pacienteCPF').value.trim() || 'Não informado';
+      const nasc = document.getElementById('pacienteDataNasc').value;
+      const logradouro = document.getElementById('pacienteLogradouro') ? document.getElementById('pacienteLogradouro').value.trim() : '';
+      const bairroCidade = document.getElementById('pacienteBairroCidade') ? document.getElementById('pacienteBairroCidade').value.trim() : '';
+      const cep = document.getElementById('pacienteCEP') ? document.getElementById('pacienteCEP').value.trim() : '';
+
+      // Atualiza linha de assinatura do paciente na Anamnese
+      const sigLabel = document.getElementById('sigPacienteNome');
+      if (sigLabel) {
+        sigLabel.textContent = document.getElementById('pacienteNome').value.trim() || 'Assinatura do Paciente / Responsável Legal';
+      }
+
+      // Cálculo de Idade
+      let idadeTexto = '___ anos';
+      if (nasc) {
+        const diff = Date.now() - new Date(nasc).getTime();
+        const ageDate = new Date(diff);
+        idadeTexto = `${Math.abs(ageDate.getUTCFullYear() - 1970)} anos`;
+      }
+
+      // Endereço formatado para ANVISA
+      let enderecoCompleto = [logradouro, bairroCidade, cep ? `CEP: ${cep}` : ''].filter(Boolean).join(' - ');
+      if (!enderecoCompleto) enderecoCompleto = '_____________________________________________________';
+
+      // Data formatada por extenso
+      const hoje = new Date();
+      const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+      const dataExtenso = `${hoje.getDate()} de ${meses[hoje.getMonth()]} de ${hoje.getFullYear()}`;
+
+      // Vinculação aos spans dos documentos
+      document.querySelectorAll('.bind-nome').forEach(el => el.textContent = nome);
+      document.querySelectorAll('.bind-cpf').forEach(el => el.textContent = cpf);
+      document.querySelectorAll('.bind-idade').forEach(el => el.textContent = idadeTexto);
+      document.querySelectorAll('.bind-endereco').forEach(el => el.textContent = enderecoCompleto);
+      document.querySelectorAll('.bind-data-atual').forEach(el => el.textContent = dataExtenso);
+
+      // Data de início padrão do atestado
+      const dtInicioAtestado = document.getElementById('atDataInicio');
+      if (dtInicioAtestado && !dtInicioAtestado.value) {
+        dtInicioAtestado.value = hoje.toISOString().split('T')[0];
+      }
+    }
+
+    // Ouvintes nos campos cadastrais para sincronização em tempo real
+    ['pacienteNome', 'pacienteCPF', 'pacienteDataNasc', 'pacienteLogradouro', 'pacienteBairroCidade', 'pacienteCEP'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', syncDocumentData);
+    });
+
+    // Sincroniza a 1ª via (Farmácia) com a 2ª via (Paciente) da receita de antibióticos
+    const textAreasAntibiotico = document.querySelectorAll('.bind-antibiotico-text');
+    if (textAreasAntibiotico.length === 2) {
+      textAreasAntibiotico[0].addEventListener('input', (e) => {
+        textAreasAntibiotico[1].value = e.target.value;
+      });
+    }
+
+    // Controle do CID no Atestado
+    const chkCid = document.getElementById('chkCid');
+    const cidInputBox = document.getElementById('cidInputBox');
+    if (chkCid && cidInputBox) {
+      chkCid.addEventListener('change', (e) => {
+        cidInputBox.style.display = e.target.checked ? 'block' : 'none';
+      });
+    }
+
+    // Inicialização
+    window.addEventListener('DOMContentLoaded', () => {
+      resetForm();
+    });
+  </script>
+</body>
+</html>
