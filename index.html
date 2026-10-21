@@ -51,6 +51,7 @@
       <button class="tab-btn" data-tab="tab-receituario-controlado">4. Receituário Especial</button>
       <button class="tab-btn" data-tab="tab-atestado">5. Atestado</button>
       <button class="tab-btn" data-tab="tab-declaracao">6. Declaração</button>
+      <button class="tab-btn" data-tab="tab-documentos">7. Documentos & Exames</button>
     </nav>
 
     <!-- DADOS GERAIS DO PACIENTE -->
@@ -339,6 +340,9 @@
           <p class="cro">Cirurgião-Dentista — CRO CE 10096</p>
           <p class="subtitle">Cirurgia, Prótese e Clínica Dentária</p>
           <p class="doc-address">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | Tel/WhatsApp: (85) 92001-0167</p>
+        <button type="button" class="btn btn-outline-primary no-print" onclick="salvarDocumentoGerado('Receituário Comum', document.getElementById('rcPrescricao').value)">
+  💾 Arquivar em Documentos
+</button>
         </div>
       </div>
 
