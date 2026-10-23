@@ -27,9 +27,9 @@
       </div>
 
       <div class="action-buttons no-print">
-        <button id="btnNovoPaciente" class="btn btn-outline-primary">+ Novo Paciente</button>
-        <button id="btnSave" class="btn btn-primary">Gravar Paciente</button>
-        <button id="btnPrint" class="btn btn-secondary" onclick="window.print()">Imprimir / PDF</button>
+        <button type="button" id="btnNovoPaciente" class="btn btn-outline-primary">+ Novo Paciente</button>
+        <button type="button" id="btnSave" class="btn btn-primary">💾 Gravar Paciente</button>
+        <button type="button" id="btnPrint" class="btn btn-secondary" onclick="window.print()">Imprimir / PDF</button>
       </div>
     </header>
 
@@ -38,20 +38,20 @@
       <div class="search-box">
         <span class="search-icon">🔍</span>
         <input type="text" id="inputBuscaPaciente" placeholder="Pesquisar paciente por Nome ou CPF..." autocomplete="off">
-        <button id="btnClearSearch" class="btn-clear-search" title="Limpar pesquisa">&times;</button>
+        <button type="button" id="btnClearSearch" class="btn-clear-search" title="Limpar pesquisa">&times;</button>
       </div>
       <div id="searchResultsList" class="search-results-dropdown"></div>
     </section>
 
     <!-- NAVEGAÇÃO DE SEPARADORES -->
     <nav class="nav-tabs no-print">
-      <button class="tab-btn active" data-tab="tab-anamnese">1. Anamnese</button>
-      <button class="tab-btn" data-tab="tab-odontograma">2. Odontograma & Tratamento</button>
-      <button class="tab-btn" data-tab="tab-receituario-comum">3. Receituário Comum</button>
-      <button class="tab-btn" data-tab="tab-receituario-controlado">4. Receituário Especial</button>
-      <button class="tab-btn" data-tab="tab-atestado">5. Atestado</button>
-      <button class="tab-btn" data-tab="tab-declaracao">6. Declaração</button>
-      <button class="tab-btn" data-tab="tab-documentos">7. Documentos & Exames</button>
+      <button type="button" class="tab-btn active" data-tab="tab-anamnese">📋 Anamnese</button>
+      <button type="button" class="tab-btn" data-tab="tab-odontograma">🩺 Odontograma/Tratamento</button>
+      <button type="button" class="tab-btn" data-tab="tab-receituario-comum">💊 Receituário Comum</button>
+      <button type="button" class="tab-btn" data-tab="tab-receituario-controlado">💊 Receituário Especial</button>
+      <button type="button" class="tab-btn" data-tab="tab-atestado">📜 Atestado</button>
+      <button type="button" class="tab-btn" data-tab="tab-declaracao">📜 Declaração</button>
+      <button type="button" class="tab-btn" data-tab="tab-documentos">📁 Documentos/Exames</button>
     </nav>
 
     <!-- DADOS GERAIS DO PACIENTE -->
@@ -207,7 +207,7 @@
 
       <!-- TERMO DE VERACIDADE E CONSENTIMENTO INFORMADO -->
       <div class="legal-box consent-section">
-        <h3 class="consent-title">5. Termo de Veracidade e Consentimento Informado</h3>
+        <h3 class="consent-title">Termo de Veracidade e Consentimento Informado</h3>
         
         <div class="consent-text">
           <p>
@@ -340,10 +340,13 @@
           <p class="cro">Cirurgião-Dentista — CRO CE 10096</p>
           <p class="subtitle">Cirurgia, Prótese e Clínica Dentária</p>
           <p class="doc-address">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | Tel/WhatsApp: (85) 92001-0167</p>
-        <button type="button" class="btn btn-outline-primary no-print" onclick="salvarDocumentoGerado('Receituário Comum', document.getElementById('rcPrescricao').value)">
-  💾 Arquivar em Documentos
-</button>
         </div>
+      </div>
+
+      <div class="doc-actions-bar no-print">
+        <button type="button" class="btn btn-outline-primary" id="btnArquivarReceitaComum">
+          💾 Arquivar este Receituário em Documentos
+        </button>
       </div>
 
       <div class="doc-title-bar">
@@ -355,7 +358,7 @@
       </div>
 
       <div class="prescription-body">
-        <label class="doc-field-label no-print">Prescrição e Posologia:</label>
+        <label class="doc-field-label no-print" for="rcPrescricao">Prescrição e Posologia:</label>
         <textarea id="rcPrescricao" class="doc-textarea" rows="12" placeholder="Uso Interno:&#10;&#10;1. Dipirona Monoidratada 500mg/mL gotas ou comprimido 500mg ------ 1 cx&#10;   Tomar 1 comprimido (ou 35 gotas) de 6 em 6 horas se dor.&#10;&#10;2. Dexametasona 4mg ---------------------------------------------- 1 cx&#10;   Tomar 1 comprimido 1 hora antes do procedimento cirúrgico."></textarea>
       </div>
 
@@ -371,8 +374,13 @@
       </div>
     </main>
 
-    <!-- ABA 4: RECEITUÁRIO DE ANTIMICROBIANOS (2 VIAS LADO A LADO - PAISAGEM) -->
+    <!-- ABA 4: RECEITUÁRIO ESPECIAL (2 VIAS LADO A LADO - PAISAGEM) -->
     <main id="tab-receituario-controlado" class="tab-content doc-landscape-container">
+      <div class="doc-actions-bar no-print" style="margin-bottom: 12px;">
+        <button type="button" class="btn btn-outline-primary" id="btnArquivarReceitaEspecial">
+          💾 Arquivar Receituário Especial em Documentos
+        </button>
+      </div>
       <div class="landscape-sheet">
         <!-- 1ª VIA: FARMÁCIA -->
         <div class="via-column via-farmacia">
@@ -396,7 +404,7 @@
           </div>
 
           <div class="prescription-body-mini">
-            <textarea class="doc-textarea mini bind-antibiotico-text" rows="7" placeholder="Prescrição do Antibiótico:&#10;1. Amoxicilina 500mg ------------------ 21 cápsulas&#10;   Tomar 1 cápsula via oral de 8 em 8 horas por 7 dias."></textarea>
+            <textarea class="doc-textarea mini bind-antibiotico-text" rows="7" placeholder="Prescrição do Medicamento Controlado:&#10;1. Amoxicilina 500mg ------------------ 21 cápsulas&#10;   Tomar 1 cápsula via oral de 8 em 8 horas por 7 dias."></textarea>
           </div>
 
           <div class="doc-date-city mini">Fortaleza - CE, <span class="bind-data-atual"></span></div>
@@ -446,7 +454,7 @@
           </div>
 
           <div class="prescription-body-mini">
-            <textarea class="doc-textarea mini bind-antibiotico-text" rows="11" placeholder="Orientações e cuidados para o paciente tomar o antibiótico nos horários corretos sem interromper o tratamento..."></textarea>
+            <textarea class="doc-textarea mini bind-antibiotico-text" rows="11" placeholder="Orientações e cuidados para o paciente tomar o medicamento nos horários corretos sem interromper o tratamento..."></textarea>
           </div>
 
           <div class="patient-note-box">
@@ -474,6 +482,12 @@
           <p class="subtitle">Cirurgia, Prótese e Clínica Dentária</p>
           <p class="doc-address">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | Tel/WhatsApp: (85) 92001-0167</p>
         </div>
+      </div>
+
+      <div class="doc-actions-bar no-print">
+        <button type="button" class="btn btn-outline-primary" id="btnArquivarAtestado">
+          💾 Arquivar este Atestado em Documentos
+        </button>
       </div>
 
       <div class="doc-title-bar">
@@ -520,6 +534,12 @@
         </div>
       </div>
 
+      <div class="doc-actions-bar no-print">
+        <button type="button" class="btn btn-outline-primary" id="btnArquivarDeclaracao">
+          💾 Arquivar esta Declaração em Documentos
+        </button>
+      </div>
+
       <div class="doc-title-bar">
         <h3>DECLARAÇÃO DE COMPARECIMENTO</h3>
       </div>
@@ -550,9 +570,77 @@
         </div>
       </div>
     </main>
-  </div> <!-- FECHO CORRETO DO CONTAINER -->
+
+    <!-- ABA 7: GESTÃO DE DOCUMENTOS E EXAMES -->
+    <main id="tab-documentos" class="tab-content">
+      <div class="section-box no-print">
+        <div class="section-header-flex">
+          <h2 class="section-title">Anexar Exame Externo (Radiografia, Tomografia, PDF)</h2>
+        </div>
+
+        <div class="upload-panel-grid">
+          <div class="form-group">
+            <label for="docTipoUpload">Tipo de Arquivo:</label>
+            <select id="docTipoUpload">
+              <option value="Radiografia Panorâmica">Radiografia Panorâmica</option>
+              <option value="Tomografia / Cone Beam">Tomografia / Laudo TC</option>
+              <option value="Radiografia Periapical">Radiografia Periapical / Interproximal</option>
+              <option value="Foto Intraoral">Fotografia Clínica / Intraoral</option>
+              <option value="Exame de Sangue / Geral">Exame Laboratorial / Outros</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="docDescUpload">Descrição / Observação:</label>
+            <input type="text" id="docDescUpload" placeholder="Ex.: Panorâmica inicial pré-extração 38 e 48">
+          </div>
+
+          <div class="form-group">
+            <label for="inputFileExame">Selecione a Imagem ou PDF:</label>
+            <input type="file" id="inputFileExame" accept="image/*,application/pdf">
+          </div>
+
+          <div class="upload-btn-wrap">
+            <button type="button" id="btnUploadDoc" class="btn btn-primary" style="height: 38px; margin-top: 18px;">
+              + Adicionar ao Prontuário
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-box">
+        <div class="section-header-flex">
+          <h2 class="section-title">Histórico de Documentos e Exames Anexados</h2>
+          <span class="tag-badge" id="badgeTotalDocs">0 itens vinculados</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th style="width: 130px;">Data / Hora</th>
+                <th style="width: 180px;">Categoria</th>
+                <th>Descrição / Resumo do Conteúdo</th>
+                <th style="width: 160px; text-align: center;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="listaDocumentosTbody">
+              <tr>
+                <td colspan="4" class="text-center text-muted" style="padding: 24px;">Nenhum documento ou exame gravado para este paciente.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
 
   <script>
+    // ==========================================
+    // CONFIGURAÇÃO CENTRALIZADA DA API DO GOOGLE
+    // ==========================================
+    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbwkkvgiCsccGV3vs04KJ4taKDoIf6HW0GA9VrMiHelDhO10zMOWqn-s4N8ND1X47qvK/exec";
+
     // DENTES POR QUADRANTE
     const dentesQ1 = [
       { id: '18', label: '18' }, { id: '17', label: '17' }, { id: '16', label: '16' },
@@ -605,7 +693,8 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
+        const targetTab = document.getElementById(btn.dataset.tab);
+        if (targetTab) targetTab.classList.add('active');
         syncDocumentData();
       });
     });
@@ -733,6 +822,7 @@
     // ==========================================
     const STORAGE_KEY = 'clinica_sindeaux_pacientes';
     let currentPatientId = null;
+    let currentPatientDocs = [];
 
     function getAllPatients() {
       try {
@@ -762,6 +852,9 @@
       document.getElementById('pacienteCEP').value = '';
       document.getElementById('pacienteLogradouro').value = '';
       document.getElementById('pacienteBairroCidade').value = '';
+
+      currentPatientDocs = [];
+      atualizarListaDocumentosUI();
 
       document.querySelectorAll('#anamneseTbody tr').forEach(tr => {
         const name = tr.dataset.key;
@@ -797,6 +890,9 @@
       if (!p) return;
 
       currentPatientId = id;
+      currentPatientDocs = Array.isArray(p.documentos) ? p.documentos : [];
+      atualizarListaDocumentosUI();
+
       document.getElementById('pacienteNome').value = p.nome || '';
       document.getElementById('pacienteDataNasc').value = p.nasc || '';
       document.getElementById('pacienteCPF').value = p.cpf || '';
@@ -857,14 +953,18 @@
       syncDocumentData();
     }
 
-    // GRAVAR PACIENTE NOVO OU ATUALIZAR
-    document.getElementById('btnSave').addEventListener('click', () => {
+    // GRAVAR PACIENTE NOVO OU ATUALIZAR (LOCALSTORAGE + GOOGLE SHEETS)
+    document.getElementById('btnSave').addEventListener('click', async () => {
       const nome = document.getElementById('pacienteNome').value.trim();
       if (!nome) {
         alert('Por favor, introduza o Nome Completo do paciente antes de gravar.');
         document.getElementById('pacienteNome').focus();
         return;
       }
+
+      const btnSave = document.getElementById('btnSave');
+      btnSave.disabled = true;
+      btnSave.textContent = 'Gravando... ⏳';
 
       const patients = getAllPatients();
       const patientId = currentPatientId || 'p_' + Date.now();
@@ -903,7 +1003,7 @@
         });
       });
 
-      patients[patientId] = {
+      const pacienteObjeto = {
         id: patientId,
         nome: nome,
         nasc: document.getElementById('pacienteDataNasc').value,
@@ -922,9 +1022,12 @@
         anamnese: anamneseData,
         teeth: teethData,
         extras: extrasData,
+        documentos: currentPatientDocs || [],
         updatedAt: new Date().toISOString()
       };
 
+      // 1. Grava no LocalStorage local
+      patients[patientId] = pacienteObjeto;
       saveAllPatients(patients);
       currentPatientId = patientId;
 
@@ -939,7 +1042,36 @@
         btnExcluir.style.display = 'inline-block';
       }
 
-      alert(`Registo de "${nome}" gravado com sucesso!`);
+      // 2. Grava na Planilha via Google Apps Script
+      if (URL_APPS_SCRIPT) {
+        try {
+          const response = await fetch(URL_APPS_SCRIPT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              acao: 'salvarPaciente',
+              paciente: pacienteObjeto
+            })
+          });
+
+          const resultado = await response.json();
+          if (resultado.status === 'sucesso') {
+            alert(`Ficha de "${nome}" gravada localmente e sincronizada no Google Sheets com sucesso!`);
+          } else {
+            alert(`Salvo localmente! Aviso da Planilha: ${resultado.mensagem}`);
+          }
+        } catch (err) {
+          console.error('Erro na sincronização com Apps Script:', err);
+          alert(`Ficha de "${nome}" gravada localmente. A sincronização com a nuvem ocorrerá na próxima tentativa.`);
+        } finally {
+          btnSave.disabled = false;
+          btnSave.textContent = 'Gravar Paciente';
+        }
+      } else {
+        btnSave.disabled = false;
+        btnSave.textContent = 'Gravar Paciente';
+        alert(`Registo de "${nome}" gravado com sucesso!`);
+      }
     });
 
     // BOTÃO NOVO PACIENTE
@@ -1023,7 +1155,7 @@
     });
 
     // BUSCA AUTOMÁTICA DE CEP (VIACEP)
-    document.getElementById('pacienteCEP').addEventListener('blur', function() {
+    document.getElementById('pacienteCEP').addEventListener('blur', function () {
       const cep = this.value.replace(/\D/g, '');
       if (cep.length === 8) {
         fetch(`https://viacep.com.br/ws/${cep}/json/`)
@@ -1051,13 +1183,11 @@
       const bairroCidade = document.getElementById('pacienteBairroCidade') ? document.getElementById('pacienteBairroCidade').value.trim() : '';
       const cep = document.getElementById('pacienteCEP') ? document.getElementById('pacienteCEP').value.trim() : '';
 
-      // Atualiza linha de assinatura do paciente na Anamnese
       const sigLabel = document.getElementById('sigPacienteNome');
       if (sigLabel) {
         sigLabel.textContent = document.getElementById('pacienteNome').value.trim() || 'Assinatura do Paciente / Responsável Legal';
       }
 
-      // Cálculo de Idade
       let idadeTexto = '___ anos';
       if (nasc) {
         const diff = Date.now() - new Date(nasc).getTime();
@@ -1065,36 +1195,30 @@
         idadeTexto = `${Math.abs(ageDate.getUTCFullYear() - 1970)} anos`;
       }
 
-      // Endereço formatado para ANVISA
       let enderecoCompleto = [logradouro, bairroCidade, cep ? `CEP: ${cep}` : ''].filter(Boolean).join(' - ');
       if (!enderecoCompleto) enderecoCompleto = '_____________________________________________________';
 
-      // Data formatada por extenso
       const hoje = new Date();
       const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
       const dataExtenso = `${hoje.getDate()} de ${meses[hoje.getMonth()]} de ${hoje.getFullYear()}`;
 
-      // Vinculação aos spans dos documentos
       document.querySelectorAll('.bind-nome').forEach(el => el.textContent = nome);
       document.querySelectorAll('.bind-cpf').forEach(el => el.textContent = cpf);
       document.querySelectorAll('.bind-idade').forEach(el => el.textContent = idadeTexto);
       document.querySelectorAll('.bind-endereco').forEach(el => el.textContent = enderecoCompleto);
       document.querySelectorAll('.bind-data-atual').forEach(el => el.textContent = dataExtenso);
 
-      // Data de início padrão do atestado
       const dtInicioAtestado = document.getElementById('atDataInicio');
       if (dtInicioAtestado && !dtInicioAtestado.value) {
         dtInicioAtestado.value = hoje.toISOString().split('T')[0];
       }
     }
 
-    // Ouvintes nos campos cadastrais para sincronização em tempo real
     ['pacienteNome', 'pacienteCPF', 'pacienteDataNasc', 'pacienteLogradouro', 'pacienteBairroCidade', 'pacienteCEP'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.addEventListener('input', syncDocumentData);
     });
 
-    // Sincroniza a 1ª via (Farmácia) com a 2ª via (Paciente) da receita de antibióticos
     const textAreasAntibiotico = document.querySelectorAll('.bind-antibiotico-text');
     if (textAreasAntibiotico.length === 2) {
       textAreasAntibiotico[0].addEventListener('input', (e) => {
@@ -1102,7 +1226,6 @@
       });
     }
 
-    // Controle do CID no Atestado
     const chkCid = document.getElementById('chkCid');
     const cidInputBox = document.getElementById('cidInputBox');
     if (chkCid && cidInputBox) {
@@ -1111,10 +1234,236 @@
       });
     }
 
-    // Inicialização
+    // ==========================================
+    // FUNÇÕES DE ARQUIVAMENTO DE DOCUMENTOS
+    // ==========================================
+    function salvarDocumentoGerado(categoria, conteudo) {
+      if (!currentPatientId) {
+        alert('Por favor, salve ou selecione um paciente antes de arquivar um documento.');
+        return;
+      }
+      if (!conteudo || !conteudo.trim()) {
+        alert('O conteúdo do documento está vazio.');
+        return;
+      }
+
+      const novoDoc = {
+        id: 'doc_' + Date.now(),
+        tipo: 'clinico',
+        categoria: categoria,
+        descricao: conteudo.substring(0, 80) + (conteudo.length > 80 ? '...' : ''),
+        conteudoCompleto: conteudo,
+        data: new Date().toLocaleString('pt-BR')
+      };
+
+      currentPatientDocs.unshift(novoDoc);
+      atualizarListaDocumentosUI();
+      salvarDocsNoStorage();
+      alert(`${categoria} arquivado em "Documentos & Exames" com sucesso!`);
+    }
+
+    // Eventos dos botões de arquivamento direto
+    document.getElementById('btnArquivarReceitaComum').addEventListener('click', () => {
+      salvarDocumentoGerado('Receituário Comum', document.getElementById('rcPrescricao').value);
+    });
+
+    document.getElementById('btnArquivarReceitaEspecial').addEventListener('click', () => {
+      const txt = textAreasAntibiotico[0] ? textAreasAntibiotico[0].value : '';
+      salvarDocumentoGerado('Receituário Especial', txt);
+    });
+
+    document.getElementById('btnArquivarAtestado').addEventListener('click', () => {
+      const dias = document.getElementById('atDias').value || '1';
+      const inicio = document.getElementById('atDataInicio').value || 'hoje';
+      const cidAtivo = document.getElementById('chkCid').checked;
+      const codCid = document.getElementById('txtCid').value;
+      const textoCompleto = `Atestado concedido para repouso de ${dias} dia(s), com início em ${inicio}.${cidAtivo ? ' CID-10: ' + codCid : ''}`;
+      salvarDocumentoGerado('Atestado Odontológico', textoCompleto);
+    });
+
+    document.getElementById('btnArquivarDeclaracao').addEventListener('click', () => {
+      const ini = document.getElementById('decHoraIni').value || '';
+      const fim = document.getElementById('decHoraFim').value || '';
+      const texto = `Declaração de comparecimento no intervalo das ${ini} às ${fim}.`;
+      salvarDocumentoGerado('Declaração de Comparecimento', texto);
+    });
+
+    // ==========================================
+    // UPLOAD DE EXAMES PARA O GOOGLE DRIVE
+    // ==========================================
+    document.getElementById('btnUploadDoc').addEventListener('click', () => {
+      if (!currentPatientId) {
+        alert('Selecione ou grave o paciente ativo primeiro.');
+        return;
+      }
+
+      const fileInput = document.getElementById('inputFileExame');
+      const tipo = document.getElementById('docTipoUpload').value;
+      const desc = document.getElementById('docDescUpload').value.trim();
+      const nomePaciente = document.getElementById('pacienteNome').value.trim();
+      const cpfPaciente = document.getElementById('pacienteCPF').value.trim();
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert('Por favor, selecione um arquivo de exame.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const btnUpload = document.getElementById('btnUploadDoc');
+      btnUpload.disabled = true;
+      btnUpload.textContent = 'Enviando para o Drive... ⏳';
+
+      const reader = new FileReader();
+      reader.onload = async function (e) {
+        const base64Data = e.target.result.split(',')[1];
+
+        const payload = {
+          acao: 'uploadArquivo',
+          pacienteNome: nomePaciente,
+          pacienteCPF: cpfPaciente,
+          nomeArquivo: file.name,
+          mimeType: file.type || 'application/octet-stream',
+          tipoExame: tipo,
+          descricao: desc || file.name,
+          base64: base64Data
+        };
+
+        try {
+          const response = await fetch(URL_APPS_SCRIPT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          });
+
+          const resultado = await response.json();
+
+          if (resultado.status === 'sucesso') {
+            const novoDocDrive = {
+              id: 'doc_' + Date.now(),
+              tipo: 'exame',
+              categoria: tipo,
+              descricao: desc || file.name,
+              fileName: file.name,
+              driveUrl: resultado.viewUrl,
+              driveId: resultado.fileId,
+              data: new Date().toLocaleString('pt-BR')
+            };
+
+            currentPatientDocs.unshift(novoDocDrive);
+            atualizarListaDocumentosUI();
+            salvarDocsNoStorage();
+
+            fileInput.value = '';
+            document.getElementById('docDescUpload').value = '';
+            alert('Exame armazenado com sucesso no Google Drive!');
+          } else {
+            alert('Erro retornado pelo Drive: ' + resultado.mensagem);
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Falha na conexão com o Google Apps Script para envio do arquivo.');
+        } finally {
+          btnUpload.disabled = false;
+          btnUpload.textContent = '+ Adicionar ao Prontuário';
+        }
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    // RENDERIZAÇÃO DA TABELA DE DOCUMENTOS
+    function atualizarListaDocumentosUI() {
+      const tbody = document.getElementById('listaDocumentosTbody');
+      const badgeTotal = document.getElementById('badgeTotalDocs');
+      badgeTotal.textContent = `${currentPatientDocs.length} ${currentPatientDocs.length === 1 ? 'item' : 'itens'}`;
+
+      if (currentPatientDocs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted" style="padding: 24px;">Nenhum documento ou exame gravado para este paciente.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = currentPatientDocs.map((doc) => {
+        let botaoVisualizar = '';
+
+        if (doc.tipo === 'exame') {
+          botaoVisualizar = `<button type="button" class="btn-action-doc" onclick="visualizarArquivo('${doc.id}')">Visualizar</button>`;
+        } else {
+          botaoVisualizar = `<button type="button" class="btn-action-doc" onclick="visualizarTexto('${doc.id}')">Ler Texto</button>`;
+        }
+
+        return `
+          <tr>
+            <td><small>${doc.data}</small></td>
+            <td>
+              <span class="badge-doc-tipo ${doc.tipo === 'exame' ? 'exame' : ''}">${doc.categoria}</span>
+            </td>
+            <td><strong>${doc.descricao}</strong></td>
+            <td style="text-align: center;">
+              ${botaoVisualizar}
+              <button type="button" class="btn-action-doc danger" onclick="removerDocumento('${doc.id}')" title="Excluir">&times;</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function visualizarArquivo(id) {
+      const doc = currentPatientDocs.find(d => d.id === id);
+      if (!doc) return;
+
+      if (doc.driveUrl) {
+        window.open(doc.driveUrl, '_blank');
+      } else if (doc.fileData) {
+        const win = window.open();
+        win.document.write(`<iframe src="${doc.fileData}" frameborder="0" style="border:0; top:0; left:0; bottom:0; right:0; width:100%; height:100%;" allowfullscreen></iframe>`);
+      }
+    }
+
+    function visualizarTexto(id) {
+      const doc = currentPatientDocs.find(d => d.id === id);
+      if (!doc) return;
+      alert(`[${doc.categoria} - ${doc.data}]\n\n${doc.conteudoCompleto}`);
+    }
+
+    function removerDocumento(id) {
+      if (confirm('Deseja remover este documento do prontuário?')) {
+        currentPatientDocs = currentPatientDocs.filter(d => d.id !== id);
+        atualizarListaDocumentosUI();
+        salvarDocsNoStorage();
+      }
+    }
+
+    function salvarDocsNoStorage() {
+      if (!currentPatientId) return;
+      const patients = getAllPatients();
+      if (patients[currentPatientId]) {
+        patients[currentPatientId].documentos = currentPatientDocs;
+        saveAllPatients(patients);
+      }
+    }
+
+    // SINCRONIZAÇÃO INICIAL COM GOOGLE SHEETS
+    async function sincronizarPacientesDaPlanilha() {
+      if (!URL_APPS_SCRIPT) return;
+      try {
+        const resposta = await fetch(URL_APPS_SCRIPT);
+        const resultado = await resposta.json();
+        if (resultado.status === 'sucesso' && resultado.pacientes) {
+          const locais = getAllPatients();
+          const mesclados = { ...locais, ...resultado.pacientes };
+          saveAllPatients(mesclados);
+        }
+      } catch (err) {
+        console.warn('Google Sheets indisponível no momento. Utilizando banco local.', err);
+      }
+    }
+
+    // INICIALIZAÇÃO ÚNICA DA APLICAÇÃO
     window.addEventListener('DOMContentLoaded', () => {
       resetForm();
+      sincronizarPacientesDaPlanilha();
     });
   </script>
 </body>
+
 </html>
