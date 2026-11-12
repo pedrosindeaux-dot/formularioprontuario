@@ -21,7 +21,7 @@
   margin: 0;
   padding: 0;
   /* flex-direction: column; */
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
 }
 
 body {
@@ -45,9 +45,9 @@ body {
 /* CABEÇALHO */
 .clinic-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid var(--primary);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px border-bottom: 2px solid var(--primary);
   padding-bottom: 20px;
   margin-bottom: 20px;
 }
@@ -94,6 +94,12 @@ body {
 .action-buttons {
   display: flex;
   gap: 10px;
+  width: 100%;
+  justify-content: flex-start;
+  /* Mude para flex-end se preferir alinhados à direita */
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-color);
+  /* Linha sutil separando os dados dos botões (opcional) */
 }
 
 .btn {
@@ -331,8 +337,8 @@ body {
 }
 
 .form-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 14px;
 }
 
@@ -342,6 +348,18 @@ body {
 
 .col-span-3 {
   grid-column: span 3;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .col-span-2,
+  .col-span-3 {
+    grid-column: span 1;
+  }
 }
 
 .form-group label {
@@ -450,11 +468,11 @@ body {
 
 /* DASHBOARD KPI */
 .kpi-panel {
-  display: flex;
-  /* grid-template-columns: repeat(4, 1fr); */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 14px;
   margin-bottom: 24px;
-  justify-content: normal
+  /* justify-content: normal */
 }
 
 .kpi-card {
@@ -511,7 +529,7 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   width: 100%;
-  
+
 }
 
 .quadrante-col {
@@ -1204,7 +1222,7 @@ body {
   margin-top: 8px;
 }
 
-.docs-table th, 
+.docs-table th,
 .docs-table td {
   border: 1px solid var(--border-color);
   padding: 10px 12px;
@@ -1269,6 +1287,57 @@ body {
 @page folhaPaisagem {
   size: A4 landscape;
   margin: 8mm;
+}
+
+/* TELA DE LOGIN */
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.login-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 380px;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  border-top: 4px solid var(--primary);
+}
+
+.login-logo {
+  max-width: 140px;
+  margin-bottom: 12px;
+}
+
+.login-card h2 {
+  font-size: 20px;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.login-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.login-erro {
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  background: #fee2e2;
+  padding: 6px;
+  border-radius: 4px;
 }
 
 @media print {
