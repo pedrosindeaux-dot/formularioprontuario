@@ -20,8 +20,6 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  /* flex-direction: column; */
-  /* flex-wrap: wrap; */
 }
 
 body {
@@ -47,7 +45,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 16px border-bottom: 2px solid var(--primary);
+  gap: 16px;
+  border-bottom: 2px solid var(--primary);
   padding-bottom: 20px;
   margin-bottom: 20px;
 }
@@ -67,7 +66,6 @@ body {
 
 .clinic-logo {
   max-width: 300px;
-  /* max-height: 72px; */
   object-fit: contain;
 }
 
@@ -96,10 +94,9 @@ body {
   gap: 10px;
   width: 100%;
   justify-content: flex-start;
-  /* Mude para flex-end se preferir alinhados à direita */
+  flex-wrap: wrap;
   padding-top: 8px;
   border-top: 1px dashed var(--border-color);
-  /* Linha sutil separando os dados dos botões (opcional) */
 }
 
 .btn {
@@ -271,7 +268,6 @@ body {
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
-  /* padding: 10px 14px; */
   font-weight: 600;
   font-size: 13.5px;
   color: var(--text-muted);
@@ -472,7 +468,6 @@ body {
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
   margin-bottom: 24px;
-  /* justify-content: normal */
 }
 
 .kpi-card {
@@ -529,7 +524,6 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   width: 100%;
-
 }
 
 .quadrante-col {
@@ -718,7 +712,7 @@ body {
   outline: none;
   background-color: #f8fafc;
   color: #475569;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 8px center;
   background-size: 14px;
@@ -1338,6 +1332,148 @@ body {
   background: #fee2e2;
   padding: 6px;
   border-radius: 4px;
+}
+
+/* MODAL LISTA DE PACIENTES */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  padding: 20px;
+}
+
+.modal-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 880px;
+  max-height: 85vh;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  border-top: 4px solid var(--primary);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-color);
+  background: #f8fafc;
+}
+
+.modal-header h2 {
+  font-size: 18px;
+  color: var(--primary);
+  margin: 0;
+}
+
+.modal-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.btn-close-modal {
+  background: transparent;
+  border: none;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.btn-close-modal:hover {
+  color: var(--danger);
+}
+
+.modal-search-bar {
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border-color);
+  background: #ffffff;
+}
+
+.modal-search-bar input {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 13.5px;
+  font-family: inherit;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  outline: none;
+}
+
+.modal-search-bar input:focus {
+  border-color: var(--primary);
+}
+
+.modal-body {
+  padding: 16px 24px 24px;
+  overflow-y: auto;
+}
+
+/* ==========================================
+   AJUSTES PARA DISPOSITIVOS MÓVEIS (CELULAR)
+   ========================================== */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .container {
+    padding: 16px;
+  }
+
+  /* Empilha a logo e os textos no cabeçalho */
+  .logo-area {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .clinic-logo {
+    max-width: 210px;
+  }
+
+  .header-titles h1 {
+    font-size: 20px;
+  }
+
+  /* Organiza os botões de ação no mobile */
+  .action-buttons {
+    justify-content: center;
+  }
+
+  .action-buttons .btn {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+
+  #btnBloquear {
+    margin-left: 0 !important;
+  }
+
+  /* Ajusta KPIs, Odontograma e Painéis para 1 ou 2 colunas no celular */
+  .kpi-panel {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .odontograma-cols,
+  .payment-box,
+  .upload-panel-grid,
+  .signatures-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media print {
