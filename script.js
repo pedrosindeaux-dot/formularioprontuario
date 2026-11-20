@@ -1,7 +1,7 @@
 // ==========================================
 // CONFIGURAÇÃO CENTRALIZADA DA API DO GOOGLE
 // ==========================================
-const URL_APPS_SCRIPT = "[https://script.google.com/macros/s/AKfycbwkkvgiCsccGV3vs04KJ4taKDoIf6HW0GA9VrMiHelDhO10zMOWqn-s4N8ND1X47qvK/exec](https://script.google.com/macros/s/AKfycbwkkvgiCsccGV3vs04KJ4taKDoIf6HW0GA9VrMiHelDhO10zMOWqn-s4N8ND1X47qvK/exec)";
+const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbwkkvgiCsccGV3vs04KJ4taKDoIf6HW0GA9VrMiHelDhO10zMOWqn-s4N8ND1X47qvK/exec";
 
 // DENTES POR QUADRANTE
 const dentesQ1 = [
@@ -49,7 +49,27 @@ document.getElementById('q2List').innerHTML = dentesQ2.map(createToothRow).join(
 document.getElementById('q4List').innerHTML = dentesQ4.map(createToothRow).join('');
 document.getElementById('q3List').innerHTML = dentesQ3.map(createToothRow).join('');
 
-// NAVEGAÇÃO ENTRE ABAS
+// ==========================================
+// ALTERNÂNCIA DE TELAS: CALENDÁRIO (INÍCIO) <-> PRONTUÁRIO
+// ==========================================
+function mostrarTelaCalendario() {
+  document.getElementById('viewCalendario').style.display = 'block';
+  document.getElementById('viewProntuario').style.display = 'none';
+  document.getElementById('btnSave').style.display = 'none';
+  document.getElementById('btnPrint').style.display = 'none';
+  renderizarCalendarioMensal();
+}
+
+function mostrarTelaProntuario() {
+  document.getElementById('viewCalendario').style.display = 'none';
+  document.getElementById('viewProntuario').style.display = 'block';
+  document.getElementById('btnSave').style.display = 'inline-block';
+  document.getElementById('btnPrint').style.display = 'inline-block';
+}
+
+document.getElementById('btnAbrirAgenda').addEventListener('click', mostrarTelaCalendario);
+
+// NAVEGAÇÃO ENTRE ABAS DO PRONTUÁRIO
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -57,8 +77,705 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.add('active');
     const targetTab = document.getElementById(btn.dataset.tab);
     if (targetTab) targetTab.classList.add('active');
+
+    if (btn.dataset.tab === 'tab-evolucao') {
+      atualizarListaEvolucoesUI();
+    }
     syncDocumentData();
   });
+});
+
+// BOTÃO IMPRIMIR / PDF (COMPATÍVEL DESKTOP, IPHONE E IPAD)
+const btnPrint = document.getElementById('btnPrint');
+if (btnPrint) {
+  btnPrint.addEventListener('click', () => {
+    syncDocumentData();
+    const activeTextarea = document.querySelector('.tab-content.active textarea');
+    if (activeTextarea && document.activeElement === activeTextarea) {
+      activeTextarea.blur();
+    }
+    setTimeout(() => {
+      window.print();
+    }, 120);
+  });
+}
+
+// ==========================================
+// MÓDULO DO CALENDÁRIO MENSAL & AGENDAMENTOS
+// ==========================================
+const AGENDA_STORAGE_KEY = 'clinica_sindeaux_agenda_v1';
+let calAnoAtual = new Date().getFullYear();
+let calMesAtual = new Date().getMonth();
+
+function carregarAgendamentos() {
+  try {
+    const dados = JSON.parse(localStorage.getItem(AGENDA_STORAGE_KEY));
+    return Array.isArray(dados) ? dados : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+let listaAgendamentos = carregarAgendamentos();
+
+async function salvarAgendamentos() {
+  localStorage.setItem(AGENDA_STORAGE_KEY, JSON.stringify(listaAgendamentos));
+  renderizarCalendarioMensal();
+
+  if (!URL_APPS_SCRIPT) return;
+  try {
+    await fetch(URL_APPS_SCRIPT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        acao: 'salvarAgenda',
+        agenda: listaAgendamentos
+      })
+    });
+  } catch (err) {
+    console.warn('Agenda salva localmente; sincronização com a nuvem pendente.', err);
+  }
+}
+
+function formatarDataISO(ano, mesZeroBased, dia) {
+  const m = String(mesZeroBased + 1).padStart(2, '0');
+  const d = String(dia).padStart(2, '0');
+  return `${ano}-${m}-${d}`;
+}
+
+function renderizarCalendarioMensal() {
+  const grid = document.getElementById('calendarGrid');
+  const titulo = document.getElementById('calMesAnoTitulo');
+  const badgeTotal = document.getElementById('calTotalMesBadge');
+  if (!grid || !titulo) return;
+
+  const nomesMeses = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ];
+
+  titulo.textContent = `${nomesMeses[calMesAtual]} ${calAnoAtual}`;
+
+  const primeiroDiaSemana = new Date(calAnoAtual, calMesAtual, 1).getDay();
+  const diasNoMes = new Date(calAnoAtual, calMesAtual + 1, 0).getDate();
+  const diasMesAnterior = new Date(calAnoAtual, calMesAtual, 0).getDate();
+
+  const hoje = new Date();
+  const hojeISO = formatarDataISO(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+  const prefixoMesAtual = `${calAnoAtual}-${String(calMesAtual + 1).padStart(2, '0')}`;
+
+  const totalNoMes = listaAgendamentos.filter(a => a.data && a.data.startsWith(prefixoMesAtual)).length;
+  if (badgeTotal) {
+    badgeTotal.textContent = `${totalNoMes} ${totalNoMes === 1 ? 'agendamento no mês' : 'agendamentos no mês'}`;
+  }
+
+  let htmlCelulas = '';
+
+  // Dias do mês anterior para completar a primeira semana
+  for (let i = primeiroDiaSemana - 1; i >= 0; i--) {
+    const diaAnt = diasMesAnterior - i;
+    htmlCelulas += `
+      <div class="calendar-day other-month">
+        <div class="calendar-day-header">
+          <span class="calendar-day-num">${diaAnt}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // Dias do mês atual
+  for (let dia = 1; dia <= diasNoMes; dia++) {
+    const dataISO = formatarDataISO(calAnoAtual, calMesAtual, dia);
+    const isToday = dataISO === hojeISO;
+    const eventosDia = listaAgendamentos
+      .filter(a => a.data === dataISO)
+      .sort((a, b) => (a.hora || '').localeCompare(b.hora || ''));
+
+    const chipsHTML = eventosDia.map(ev => `
+      <button type="button" class="cal-patient-chip" data-ag-id="${ev.id}" title="${escapeHTML(ev.hora || '')} - ${escapeHTML(ev.pacienteNome)} ${ev.obs ? '(' + escapeHTML(ev.obs) + ')' : ''}">
+        ${ev.hora ? `<span class="cal-chip-time">${escapeHTML(ev.hora)}</span>` : ''}
+        <span class="cal-chip-name">${escapeHTML(ev.pacienteNome)}</span>
+      </button>
+    `).join('');
+
+    htmlCelulas += `
+      <div class="calendar-day ${isToday ? 'is-today' : ''}" data-date="${dataISO}">
+        <div class="calendar-day-header">
+          <span class="calendar-day-num">${dia}</span>
+          <span class="calendar-day-add-hint">+</span>
+        </div>
+        <div class="calendar-events-list">
+          ${chipsHTML}
+        </div>
+      </div>
+    `;
+  }
+
+  // Dias do próximo mês para fechar a grade de 7 colunas
+  const totalCelulas = primeiroDiaSemana + diasNoMes;
+  const restante = totalCelulas % 7 === 0 ? 0 : 7 - (totalCelulas % 7);
+  for (let dProx = 1; dProx <= restante; dProx++) {
+    htmlCelulas += `
+      <div class="calendar-day other-month">
+        <div class="calendar-day-header">
+          <span class="calendar-day-num">${dProx}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  grid.innerHTML = htmlCelulas;
+
+  // Evento: clicar no chip do paciente abre diretamente o prontuário dele
+  grid.querySelectorAll('.cal-patient-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      abrirProntuarioPorAgendamento(chip.dataset.agId);
+    });
+  });
+
+  // Evento: clicar na célula do dia abre o modal daquele dia para agendar/visualizar
+  grid.querySelectorAll('.calendar-day:not(.other-month)').forEach(celula => {
+    celula.addEventListener('click', () => {
+      abrirModalAgendaDia(celula.dataset.date);
+    });
+  });
+}
+
+function abrirProntuarioPorAgendamento(agendamentoId) {
+  const ag = listaAgendamentos.find(item => item.id === agendamentoId);
+  if (!ag) return;
+
+  const pacientes = getAllPatients();
+  let pacienteEncontrado = null;
+
+  if (ag.pacienteId && pacientes[ag.pacienteId]) {
+    pacienteEncontrado = pacientes[ag.pacienteId];
+  } else {
+    const nomeBusca = (ag.pacienteNome || '').trim().toLowerCase();
+    pacienteEncontrado = Object.values(pacientes).find(
+      p => p.nome && p.nome.trim().toLowerCase() === nomeBusca
+    );
+  }
+
+  mostrarTelaProntuario();
+
+  if (pacienteEncontrado) {
+    loadPatient(pacienteEncontrado.id);
+  } else {
+    resetForm();
+    document.getElementById('pacienteNome').value = ag.pacienteNome || '';
+    if (ag.obs) {
+      document.getElementById('queixaPrincipal').value = ag.obs;
+    }
+    syncDocumentData();
+  }
+}
+
+function atualizarDatalistPacientesAgenda() {
+  const datalist = document.getElementById('datalistPacientesAgenda');
+  if (!datalist) return;
+  const pacientes = Object.values(getAllPatients()).sort((a, b) =>
+    (a.nome || '').localeCompare(b.nome || '')
+  );
+  datalist.innerHTML = pacientes
+    .map(p => `<option value="${escapeHTML(p.nome)}">`)
+    .join('');
+}
+
+function abrirModalAgendaDia(dataISO, nomePrePreenchido = '') {
+  const modal = document.getElementById('modalAgendaDia');
+  const titulo = document.getElementById('tituloModalAgenda');
+  const inputData = document.getElementById('agDataInput');
+  const inputPaciente = document.getElementById('agPacienteInput');
+  const inputObs = document.getElementById('agObsInput');
+
+  const dataAlvo = dataISO || formatarDataISO(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+  titulo.textContent = `Agenda — ${formatarDataBR(dataAlvo)}`;
+  inputData.value = dataAlvo;
+  inputPaciente.value = nomePrePreenchido;
+  inputObs.value = '';
+
+  atualizarDatalistPacientesAgenda();
+  renderizarListaAgendadosNoModal(dataAlvo);
+
+  modal.style.display = 'flex';
+  if (!nomePrePreenchido) {
+    inputPaciente.focus();
+  } else {
+    inputObs.focus();
+  }
+}
+
+function renderizarListaAgendadosNoModal(dataISO) {
+  const container = document.getElementById('listaAgendadosDia');
+  if (!container) return;
+
+  const eventos = listaAgendamentos
+    .filter(a => a.data === dataISO)
+    .sort((a, b) => (a.hora || '').localeCompare(b.hora || ''));
+
+  if (eventos.length === 0) {
+    container.innerHTML = `<p class="text-center text-muted" style="padding: 16px;">Nenhum paciente agendado para esta data.</p>`;
+    return;
+  }
+
+  container.innerHTML = eventos.map(ev => `
+    <div class="evolucao-card" style="padding: 10px 14px;">
+      <div class="evolucao-card-header" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
+        <div>
+          <strong style="font-size: 13.5px; color: var(--primary);">
+            ${ev.hora ? `🕒 ${escapeHTML(ev.hora)} — ` : ''}${escapeHTML(ev.pacienteNome)}
+          </strong>
+          ${ev.obs ? `<div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${escapeHTML(ev.obs)}</div>` : ''}
+        </div>
+        <div class="evolucao-card-actions" style="display: flex; gap: 6px; align-items: center;">
+          <button type="button" class="btn btn-sm btn-primary" onclick="abrirFichaPeloModalAgenda('${ev.id}')">Abrir Prontuário</button>
+          <button type="button" class="btn-action-doc danger" onclick="excluirAgendamento('${ev.id}')" title="Remover">&times;</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function abrirFichaPeloModalAgenda(agId) {
+  document.getElementById('modalAgendaDia').style.display = 'none';
+  abrirProntuarioPorAgendamento(agId);
+}
+
+function excluirAgendamento(agId) {
+  if (!confirm('Remover este agendamento do calendário?')) return;
+  const dataAtualModal = document.getElementById('agDataInput').value;
+  listaAgendamentos = listaAgendamentos.filter(a => a.id !== agId);
+  salvarAgendamentos();
+  renderizarListaAgendadosNoModal(dataAtualModal);
+}
+
+// Eventos do Calendário e Modal de Agendamento
+document.getElementById('btnCalPrev').addEventListener('click', () => {
+  calMesAtual--;
+  if (calMesAtual < 0) {
+    calMesAtual = 11;
+    calAnoAtual--;
+  }
+  renderizarCalendarioMensal();
+});
+
+document.getElementById('btnCalNext').addEventListener('click', () => {
+  calMesAtual++;
+  if (calMesAtual > 11) {
+    calMesAtual = 0;
+    calAnoAtual++;
+  }
+  renderizarCalendarioMensal();
+});
+
+document.getElementById('btnCalHoje').addEventListener('click', () => {
+  const hoje = new Date();
+  calAnoAtual = hoje.getFullYear();
+  calMesAtual = hoje.getMonth();
+  renderizarCalendarioMensal();
+});
+
+document.getElementById('btnNovoAgendamentoRapido').addEventListener('click', () => {
+  const hoje = new Date();
+  abrirModalAgendaDia(formatarDataISO(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()));
+});
+
+document.getElementById('btnAgendarEstePaciente').addEventListener('click', () => {
+  const nomeAtual = document.getElementById('pacienteNome').value.trim();
+  const hoje = new Date();
+  abrirModalAgendaDia(formatarDataISO(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()), nomeAtual);
+});
+
+document.getElementById('agDataInput').addEventListener('change', (e) => {
+  const novaData = e.target.value;
+  if (novaData) {
+    document.getElementById('tituloModalAgenda').textContent = `Agenda — ${formatarDataBR(novaData)}`;
+    renderizarListaAgendadosNoModal(novaData);
+  }
+});
+
+document.getElementById('btnSalvarAgendamento').addEventListener('click', () => {
+  const data = document.getElementById('agDataInput').value;
+  const hora = document.getElementById('agHoraInput').value;
+  const pacienteNome = document.getElementById('agPacienteInput').value.trim();
+  const obs = document.getElementById('agObsInput').value.trim();
+
+  if (!data) {
+    alert('Selecione a data do agendamento.');
+    return;
+  }
+  if (!pacienteNome) {
+    alert('Informe o nome do paciente.');
+    document.getElementById('agPacienteInput').focus();
+    return;
+  }
+
+  const pacientes = getAllPatients();
+  const match = Object.values(pacientes).find(
+    p => p.nome && p.nome.trim().toLowerCase() === pacienteNome.toLowerCase()
+  );
+
+  listaAgendamentos.push({
+    id: 'ag_' + Date.now(),
+    data: data,
+    hora: hora,
+    pacienteId: match ? match.id : null,
+    pacienteNome: match ? match.nome : pacienteNome,
+    obs: obs
+  });
+
+  const partesData = data.split('-');
+  if (partesData.length === 3) {
+    calAnoAtual = parseInt(partesData[0], 10);
+    calMesAtual = parseInt(partesData[1], 10) - 1;
+  }
+
+  salvarAgendamentos();
+  document.getElementById('agPacienteInput').value = '';
+  document.getElementById('agObsInput').value = '';
+  renderizarListaAgendadosNoModal(data);
+});
+
+document.getElementById('btnFecharModalAgenda').addEventListener('click', () => {
+  document.getElementById('modalAgendaDia').style.display = 'none';
+});
+
+document.getElementById('modalAgendaDia').addEventListener('click', (e) => {
+  if (e.target.id === 'modalAgendaDia') {
+    document.getElementById('modalAgendaDia').style.display = 'none';
+  }
+});
+
+// ==========================================
+// BANCO INTELIGENTE DE MEDICAÇÕES & POSOLOGIAS
+// ==========================================
+const MEDS_STORAGE_KEY = 'clinica_sindeaux_medicacoes_v1';
+
+const MEDICACOES_PADRAO = {
+  comum: [
+    {
+      id: 'med_c1',
+      titulo: 'Dipirona 500mg — Analgésico (6/6h)',
+      texto: 'Dipirona Monoidratada 500mg -------------------- 1 caixa\n   Tomar 1 comprimido via oral de 6 em 6 horas em caso de dor.'
+    },
+    {
+      id: 'med_c2',
+      titulo: 'Ibuprofeno 600mg — Anti-inflamatório (8/8h)',
+      texto: 'Ibuprofeno 600mg --------------------------------- 1 caixa\n   Tomar 1 comprimido via oral de 8 em 8 horas por 3 dias, após as refeições.'
+    },
+    {
+      id: 'med_c3',
+      titulo: 'Nimesulida 100mg — Anti-inflamatório (12/12h)',
+      texto: 'Nimesulida 100mg --------------------------------- 1 caixa\n   Tomar 1 comprimido via oral de 12 em 12 horas por 3 dias.'
+    },
+    {
+      id: 'med_c4',
+      titulo: 'Dexametasona 4mg — Pré-operatório (Dose única)',
+      texto: 'Dexametasona 4mg --------------------------------- 1 caixa\n   Tomar 1 comprimido via oral 1 hora antes do procedimento cirúrgico.'
+    },
+    {
+      id: 'med_c5',
+      titulo: 'Clorexidina 0,12% — Enxaguatório Pós-Cirúrgico',
+      texto: 'Digluconato de Clorexidina 0,12% (sem álcool) ---- 1 frasco\n   Bochechar suavemente 15mL por 1 minuto, de 12 em 12 horas, durante 7 dias (iniciar 24h após a cirurgia).'
+    }
+  ],
+  especial: [
+    {
+      id: 'med_e1',
+      titulo: 'Amoxicilina 500mg — 8/8h por 7 dias (21 cápsulas)',
+      texto: 'Amoxicilina 500mg -------------------------------- 21 cápsulas\n   Tomar 1 cápsula via oral de 8 em 8 horas durante 7 dias.'
+    },
+    {
+      id: 'med_e2',
+      titulo: 'Amoxicilina + Clavulanato 875/125mg — 12/12h (7 dias)',
+      texto: 'Amoxicilina + Clavulanato de Potássio 875mg/125mg -- 14 comprimidos\n   Tomar 1 comprimido via oral de 12 em 12 horas durante 7 dias.'
+    },
+    {
+      id: 'med_e3',
+      titulo: 'Clindamicina 300mg — Alérgicos a Penicilina (8/8h)',
+      texto: 'Cloridrato de Clindamicina 300mg ----------------- 21 cápsulas\n   Tomar 1 cápsula via oral de 8 em 8 horas durante 7 dias.'
+    },
+    {
+      id: 'med_e4',
+      titulo: 'Azitromicina 500mg — 1x ao dia por 5 dias',
+      texto: 'Azitromicina Di-hidratada 500mg ------------------ 5 comprimidos\n   Tomar 1 comprimido via oral uma vez ao dia durante 5 dias.'
+    },
+    {
+      id: 'med_e5',
+      titulo: 'Paracetamol 500mg + Codeína 30mg (Tylex) — Dor Intensa',
+      texto: 'Paracetamol 500mg + Fosfato de Codeína 30mg ------ 1 caixa\n   Tomar 1 comprimido via oral de 6 em 6 horas em caso de dor intensa.'
+    }
+  ]
+};
+
+function carregarBancoMedicacoes() {
+  try {
+    const salvo = JSON.parse(localStorage.getItem(MEDS_STORAGE_KEY));
+    if (salvo && Array.isArray(salvo.comum) && Array.isArray(salvo.especial)) {
+      return salvo;
+    }
+  } catch (e) {
+    console.warn('Erro ao ler banco de medicações:', e);
+  }
+  localStorage.setItem(MEDS_STORAGE_KEY, JSON.stringify(MEDICACOES_PADRAO));
+  return JSON.parse(JSON.stringify(MEDICACOES_PADRAO));
+}
+
+let bancoMedicacoes = carregarBancoMedicacoes();
+let modalModeloTipoAtual = 'comum';
+
+async function salvarBancoMedicacoes() {
+  localStorage.setItem(MEDS_STORAGE_KEY, JSON.stringify(bancoMedicacoes));
+  popularSelectsMedicacoes();
+
+  if (!URL_APPS_SCRIPT) return;
+  try {
+    await fetch(URL_APPS_SCRIPT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        acao: 'salvarMedicacoes',
+        medicacoes: bancoMedicacoes
+      })
+    });
+  } catch (err) {
+    console.warn('Medicações salvas localmente; sincronização com a nuvem pendente.', err);
+  }
+}
+
+function popularSelectsMedicacoes() {
+  const selComum = document.getElementById('selectMedComum');
+  const selEspecial = document.getElementById('selectMedEspecial');
+
+  if (selComum) {
+    const ordenadosC = [...bancoMedicacoes.comum].sort((a, b) => a.titulo.localeCompare(b.titulo));
+    selComum.innerHTML = `<option value="">Selecione uma medicação salva (${ordenadosC.length})...</option>` +
+      ordenadosC.map(m => `<option value="${m.id}">${escapeHTML(m.titulo)}</option>`).join('');
+  }
+
+  if (selEspecial) {
+    const ordenadosE = [...bancoMedicacoes.especial].sort((a, b) => a.titulo.localeCompare(b.titulo));
+    selEspecial.innerHTML = `<option value="">Selecione um antimicrobiano/controlado salvo (${ordenadosE.length})...</option>` +
+      ordenadosE.map(m => `<option value="${m.id}">${escapeHTML(m.titulo)}</option>`).join('');
+  }
+}
+
+function obterProximoNumeroReceita(textoAtual) {
+  const matches = textoAtual.match(/^\s*(\d+)[\.\-\)]/gm);
+  if (!matches || matches.length === 0) return 1;
+  const nums = matches.map(m => parseInt(m.replace(/\D/g, ''), 10)).filter(n => !isNaN(n));
+  return nums.length > 0 ? Math.max(...nums) + 1 : 1;
+}
+
+function inserirMedicacaoNaReceita(tipo) {
+  const selectEl = document.getElementById(tipo === 'comum' ? 'selectMedComum' : 'selectMedEspecial');
+  if (!selectEl || !selectEl.value) {
+    alert('Selecione uma medicação na lista primeiro.');
+    return;
+  }
+
+  const item = bancoMedicacoes[tipo].find(m => m.id === selectEl.value);
+  if (!item) return;
+
+  if (tipo === 'comum') {
+    const textarea = document.getElementById('rcPrescricao');
+    const atual = textarea.value.trim();
+    const proxNum = obterProximoNumeroReceita(atual);
+    const bloco = `${proxNum}. ${item.texto.trim()}`;
+    textarea.value = atual ? `${atual}\n\n${bloco}` : `Uso Interno:\n\n${bloco}`;
+    textarea.focus();
+  } else {
+    const via1 = document.getElementById('rePrescricaoVia1');
+    const via2 = document.getElementById('rePrescricaoVia2');
+    const atual = via1.value.trim();
+    const proxNum = obterProximoNumeroReceita(atual);
+    const bloco = `${proxNum}. ${item.texto.trim()}`;
+    const novoTexto = atual ? `${atual}\n\n${bloco}` : `Uso Interno:\n\n${bloco}`;
+    via1.value = novoTexto;
+    via2.value = novoTexto;
+    via1.focus();
+  }
+
+  selectEl.value = '';
+}
+
+function capturarItensDaReceitaParaBanco(tipo) {
+  const textarea = tipo === 'comum'
+    ? document.getElementById('rcPrescricao')
+    : document.getElementById('rePrescricaoVia1');
+
+  const texto = textarea ? textarea.value.trim() : '';
+  if (!texto) {
+    alert('A caixa de prescrição está vazia. Digite ao menos uma medicação para salvar.');
+    return;
+  }
+
+  const semCabecalho = texto.replace(/^Uso\s+(Interno|Externo|Tópico)\s*:?\s*/i, '').trim();
+  const blocos = semCabecalho
+    .split(/\n(?=\s*\d+[\.\-\)])/)
+    .map(b => b.replace(/^\s*\d+[\.\-\)]\s*/, '').trim())
+    .filter(Boolean);
+
+  if (blocos.length === 0) {
+    alert('Não foi possível identificar itens válidos na prescrição.');
+    return;
+  }
+
+  let salvos = 0;
+  blocos.forEach(bloco => {
+    const primeiraLinha = bloco.split('\n')[0];
+    const nomeLimpo = primeiraLinha.split(/\s*-{2,}\s*/)[0].trim();
+    const tituloSugerido = nomeLimpo.substring(0, 52) || 'Medicação Personalizada';
+
+    const jaExiste = bancoMedicacoes[tipo].some(
+      m => m.texto.trim().toLowerCase() === bloco.toLowerCase()
+    );
+
+    if (!jaExiste) {
+      bancoMedicacoes[tipo].push({
+        id: 'med_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+        titulo: tituloSugerido,
+        texto: bloco
+      });
+      salvos++;
+    }
+  });
+
+  if (salvos > 0) {
+    salvarBancoMedicacoes();
+    alert(`${salvos} ${salvos === 1 ? 'nova medicação salva' : 'novas medicações salvas'} no menu suspenso e sincronizada na nuvem!`);
+  } else {
+    alert('Todas as medicações desta receita já estão salvas no seu banco.');
+  }
+}
+
+function abrirModalModelos(tipo) {
+  modalModeloTipoAtual = tipo;
+  const modal = document.getElementById('modalModelosMed');
+  const titulo = document.getElementById('tituloModalModelos');
+  titulo.textContent = tipo === 'comum'
+    ? 'Modelos — Receituário Comum'
+    : 'Modelos — Receituário Especial / Antimicrobianos';
+
+  limparFormModalModelo();
+  renderizarListaModelosModal();
+  modal.style.display = 'flex';
+}
+
+function limparFormModalModelo() {
+  document.getElementById('editModeloId').value = '';
+  document.getElementById('modeloTituloInput').value = '';
+  document.getElementById('modeloTextoInput').value = '';
+  document.getElementById('btnSalvarNovoModelo').textContent = '💾 Salvar Modelo';
+  document.getElementById('btnCancelarEdicaoModelo').style.display = 'none';
+}
+
+function renderizarListaModelosModal() {
+  const container = document.getElementById('listaModelosGerenciar');
+  const lista = [...bancoMedicacoes[modalModeloTipoAtual]].sort((a, b) => a.titulo.localeCompare(b.titulo));
+
+  if (lista.length === 0) {
+    container.innerHTML = `<p class="text-center text-muted" style="padding: 16px;">Nenhum modelo cadastrado nesta categoria.</p>`;
+    return;
+  }
+
+  container.innerHTML = lista.map(m => `
+    <div class="evolucao-card" style="padding: 10px 14px;">
+      <div class="evolucao-card-header" style="margin-bottom: 4px; padding-bottom: 4px;">
+        <strong style="font-size: 13px; color: var(--primary);">${escapeHTML(m.titulo)}</strong>
+        <div class="evolucao-card-actions">
+          <button type="button" class="btn-action-doc" onclick="editarModeloMed('${m.id}')">✏️ Editar</button>
+          <button type="button" class="btn-action-doc danger" onclick="excluirModeloMed('${m.id}')">&times;</button>
+        </div>
+      </div>
+      <div class="evolucao-card-body" style="font-size: 12px; color: #475569;">${escapeHTML(m.texto)}</div>
+    </div>
+  `).join('');
+}
+
+function editarModeloMed(id) {
+  const item = bancoMedicacoes[modalModeloTipoAtual].find(m => m.id === id);
+  if (!item) return;
+
+  document.getElementById('editModeloId').value = item.id;
+  document.getElementById('modeloTituloInput').value = item.titulo;
+  document.getElementById('modeloTextoInput').value = item.texto;
+  document.getElementById('btnSalvarNovoModelo').textContent = '💾 Atualizar Modelo';
+  document.getElementById('btnCancelarEdicaoModelo').style.display = 'inline-block';
+  document.getElementById('modeloTituloInput').focus();
+}
+
+function excluirModeloMed(id) {
+  if (!confirm('Deseja excluir este modelo de medicação?')) return;
+  bancoMedicacoes[modalModeloTipoAtual] = bancoMedicacoes[modalModeloTipoAtual].filter(m => m.id !== id);
+  salvarBancoMedicacoes();
+  renderizarListaModelosModal();
+}
+
+// Eventos dos controles de medicação
+document.getElementById('btnInserirMedComum').addEventListener('click', () => inserirMedicacaoNaReceita('comum'));
+document.getElementById('btnInserirMedEspecial').addEventListener('click', () => inserirMedicacaoNaReceita('especial'));
+
+document.getElementById('btnLimparReceitaComum').addEventListener('click', () => {
+  if (confirm('Limpar o texto do Receituário Comum?')) {
+    document.getElementById('rcPrescricao').value = '';
+  }
+});
+
+document.getElementById('btnLimparReceitaEspecial').addEventListener('click', () => {
+  if (confirm('Limpar o texto das duas vias do Receituário Especial?')) {
+    document.getElementById('rePrescricaoVia1').value = '';
+    document.getElementById('rePrescricaoVia2').value = '';
+  }
+});
+
+document.getElementById('btnSalvarModeloComum').addEventListener('click', () => capturarItensDaReceitaParaBanco('comum'));
+document.getElementById('btnSalvarModeloEspecial').addEventListener('click', () => capturarItensDaReceitaParaBanco('especial'));
+
+document.getElementById('btnGerenciarModelosComum').addEventListener('click', () => abrirModalModelos('comum'));
+document.getElementById('btnGerenciarModelosEspecial').addEventListener('click', () => abrirModalModelos('especial'));
+
+document.getElementById('btnFecharModalModelos').addEventListener('click', () => {
+  document.getElementById('modalModelosMed').style.display = 'none';
+});
+
+document.getElementById('modalModelosMed').addEventListener('click', (e) => {
+  if (e.target.id === 'modalModelosMed') {
+    document.getElementById('modalModelosMed').style.display = 'none';
+  }
+});
+
+document.getElementById('btnCancelarEdicaoModelo').addEventListener('click', limparFormModalModelo);
+
+document.getElementById('btnSalvarNovoModelo').addEventListener('click', () => {
+  const editId = document.getElementById('editModeloId').value;
+  const titulo = document.getElementById('modeloTituloInput').value.trim();
+  const texto = document.getElementById('modeloTextoInput').value.trim();
+
+  if (!titulo || !texto) {
+    alert('Preencha o título e o texto da prescrição.');
+    return;
+  }
+
+  if (editId) {
+    const idx = bancoMedicacoes[modalModeloTipoAtual].findIndex(m => m.id === editId);
+    if (idx !== -1) {
+      bancoMedicacoes[modalModeloTipoAtual][idx].titulo = titulo;
+      bancoMedicacoes[modalModeloTipoAtual][idx].texto = texto;
+    }
+  } else {
+    bancoMedicacoes[modalModeloTipoAtual].push({
+      id: 'med_' + Date.now(),
+      titulo: titulo,
+      texto: texto
+    });
+  }
+
+  salvarBancoMedicacoes();
+  limparFormModalModelo();
+  renderizarListaModelosModal();
 });
 
 // PROCEDIMENTOS EXTRAS
@@ -185,6 +902,8 @@ document.querySelectorAll('.tooth-status').forEach(sel => {
 const STORAGE_KEY = 'clinica_sindeaux_pacientes';
 let currentPatientId = null;
 let currentPatientDocs = [];
+let currentPatientEvolucoes = [];
+let editingEvolucaoId = null;
 
 function getAllPatients() {
   try {
@@ -217,6 +936,10 @@ function resetForm() {
 
   currentPatientDocs = [];
   atualizarListaDocumentosUI();
+
+  currentPatientEvolucoes = [];
+  limparFormEvolucao();
+  atualizarListaEvolucoesUI();
 
   document.querySelectorAll('#anamneseTbody tr').forEach(tr => {
     const name = tr.dataset.key;
@@ -251,9 +974,15 @@ function loadPatient(id) {
   const p = patients[id];
   if (!p) return;
 
+  mostrarTelaProntuario();
+
   currentPatientId = id;
   currentPatientDocs = Array.isArray(p.documentos) ? p.documentos : [];
   atualizarListaDocumentosUI();
+
+  currentPatientEvolucoes = Array.isArray(p.evolucoes) ? p.evolucoes : [];
+  limparFormEvolucao();
+  atualizarListaEvolucoesUI();
 
   document.getElementById('pacienteNome').value = p.nome || '';
   document.getElementById('pacienteDataNasc').value = p.nasc || '';
@@ -314,6 +1043,177 @@ function loadPatient(id) {
   calcTotals();
   syncDocumentData();
 }
+
+// ==========================================
+// MÓDULO DE EVOLUÇÃO CLÍNICA
+// ==========================================
+function limparFormEvolucao() {
+  editingEvolucaoId = null;
+  const inputData = document.getElementById('evolucaoData');
+  const inputTexto = document.getElementById('evolucaoTexto');
+  const tituloForm = document.getElementById('tituloFormEvolucao');
+  const badgeModo = document.getElementById('badgeModoEvolucao');
+  const btnSalvar = document.getElementById('btnSalvarEvolucao');
+  const btnCancelar = document.getElementById('btnCancelarEdicaoEvolucao');
+
+  if (inputData) inputData.value = new Date().toISOString().split('T')[0];
+  if (inputTexto) inputTexto.value = '';
+  if (tituloForm) tituloForm.textContent = 'Nova Evolução Clínica';
+  if (badgeModo) {
+    badgeModo.textContent = 'Novo Registro';
+    badgeModo.style.background = '';
+    badgeModo.style.color = '';
+  }
+  if (btnSalvar) btnSalvar.textContent = '💾 Salvar Evolução';
+  if (btnCancelar) btnCancelar.style.display = 'none';
+}
+
+function salvarEvolucoesNoStorage() {
+  if (!currentPatientId) return;
+  const patients = getAllPatients();
+  if (patients[currentPatientId]) {
+    patients[currentPatientId].evolucoes = currentPatientEvolucoes;
+    patients[currentPatientId].updatedAt = new Date().toISOString();
+    saveAllPatients(patients);
+  }
+}
+
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function formatarDataBR(dataISO) {
+  if (!dataISO) return 'Data não informada';
+  const partes = dataISO.split('-');
+  if (partes.length === 3) {
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  }
+  return dataISO;
+}
+
+function atualizarListaEvolucoesUI() {
+  const container = document.getElementById('listaEvolucoesContainer');
+  const badgeTotal = document.getElementById('badgeTotalEvolucoes');
+  if (!container || !badgeTotal) return;
+
+  badgeTotal.textContent = `${currentPatientEvolucoes.length} ${currentPatientEvolucoes.length === 1 ? 'registro' : 'registros'}`;
+
+  if (currentPatientEvolucoes.length === 0) {
+    container.innerHTML = `<p class="text-center text-muted" style="padding: 24px;">Nenhuma evolução clínica registrada para este paciente.</p>`;
+    return;
+  }
+
+  const ordenadas = [...currentPatientEvolucoes].sort((a, b) => {
+    const da = a.data || '';
+    const db = b.data || '';
+    if (db !== da) return db.localeCompare(da);
+    return (b.updatedAt || '').localeCompare(a.updatedAt || '');
+  });
+
+  container.innerHTML = ordenadas.map(ev => {
+    const isEditing = editingEvolucaoId === ev.id;
+    return `
+      <div class="evolucao-card ${isEditing ? 'is-editing' : ''}">
+        <div class="evolucao-card-header">
+          <div class="evolucao-date-badge">
+            📅 ${formatarDataBR(ev.data)}
+            ${ev.editado ? '<span class="evolucao-edited-tag">(Editado)</span>' : ''}
+          </div>
+          <div class="evolucao-card-actions no-print">
+            <button type="button" class="btn-action-doc" onclick="editarEvolucao('${ev.id}')">✏️ Editar</button>
+            <button type="button" class="btn-action-doc danger" onclick="excluirEvolucao('${ev.id}')" title="Excluir">&times;</button>
+          </div>
+        </div>
+        <div class="evolucao-card-body">${escapeHTML(ev.texto)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function editarEvolucao(id) {
+  const ev = currentPatientEvolucoes.find(item => item.id === id);
+  if (!ev) return;
+
+  editingEvolucaoId = ev.id;
+  document.getElementById('evolucaoData').value = ev.data || '';
+  document.getElementById('evolucaoTexto').value = ev.texto || '';
+  document.getElementById('tituloFormEvolucao').textContent = 'Editando Evolução Clínica';
+
+  const badgeModo = document.getElementById('badgeModoEvolucao');
+  badgeModo.textContent = 'Modo Edição';
+  badgeModo.style.background = '#fef3c7';
+  badgeModo.style.color = '#92400e';
+
+  document.getElementById('btnSalvarEvolucao').textContent = '💾 Atualizar Evolução';
+  document.getElementById('btnCancelarEdicaoEvolucao').style.display = 'inline-block';
+
+  atualizarListaEvolucoesUI();
+  document.getElementById('evolucaoTexto').focus();
+}
+
+function excluirEvolucao(id) {
+  if (confirm('Deseja realmente excluir este registro de evolução?')) {
+    currentPatientEvolucoes = currentPatientEvolucoes.filter(item => item.id !== id);
+    if (editingEvolucaoId === id) {
+      limparFormEvolucao();
+    }
+    salvarEvolucoesNoStorage();
+    atualizarListaEvolucoesUI();
+  }
+}
+
+document.getElementById('btnSalvarEvolucao').addEventListener('click', () => {
+  const dataVal = document.getElementById('evolucaoData').value;
+  const textoVal = document.getElementById('evolucaoTexto').value.trim();
+
+  if (!dataVal) {
+    alert('Por favor, informe a data do atendimento.');
+    document.getElementById('evolucaoData').focus();
+    return;
+  }
+
+  if (!textoVal) {
+    alert('Por favor, descreva o que foi realizado na evolução.');
+    document.getElementById('evolucaoTexto').focus();
+    return;
+  }
+
+  if (editingEvolucaoId) {
+    const idx = currentPatientEvolucoes.findIndex(item => item.id === editingEvolucaoId);
+    if (idx !== -1) {
+      currentPatientEvolucoes[idx].data = dataVal;
+      currentPatientEvolucoes[idx].texto = textoVal;
+      currentPatientEvolucoes[idx].editado = true;
+      currentPatientEvolucoes[idx].updatedAt = new Date().toISOString();
+    }
+  } else {
+    currentPatientEvolucoes.unshift({
+      id: 'ev_' + Date.now(),
+      data: dataVal,
+      texto: textoVal,
+      editado: false,
+      updatedAt: new Date().toISOString()
+    });
+  }
+
+  limparFormEvolucao();
+  atualizarListaEvolucoesUI();
+
+  if (currentPatientId) {
+    salvarEvolucoesNoStorage();
+  } else {
+    alert('Evolução adicionada à ficha! Lembre-se de clicar em "💾 Gravar Paciente" no topo para salvar o cadastro completo.');
+  }
+});
+
+document.getElementById('btnCancelarEdicaoEvolucao').addEventListener('click', () => {
+  limparFormEvolucao();
+  atualizarListaEvolucoesUI();
+});
 
 // GRAVAR PACIENTE NOVO OU ATUALIZAR (LOCALSTORAGE + GOOGLE SHEETS)
 document.getElementById('btnSave').addEventListener('click', async () => {
@@ -384,6 +1284,7 @@ document.getElementById('btnSave').addEventListener('click', async () => {
     anamnese: anamneseData,
     teeth: teethData,
     extras: extrasData,
+    evolucoes: currentPatientEvolucoes || [],
     documentos: currentPatientDocs || [],
     updatedAt: new Date().toISOString()
   };
@@ -438,7 +1339,9 @@ document.getElementById('btnSave').addEventListener('click', async () => {
 
 // BOTÃO NOVO PACIENTE
 document.getElementById('btnNovoPaciente').addEventListener('click', () => {
-  if (confirm('Deseja iniciar o cadastro de um Novo Paciente? O formulário será limpo.')) {
+  const prontuarioVisivel = document.getElementById('viewProntuario').style.display !== 'none';
+  if (!prontuarioVisivel || confirm('Deseja iniciar o cadastro de um Novo Paciente? O formulário será limpo.')) {
+    mostrarTelaProntuario();
     resetForm();
   }
 });
@@ -520,7 +1423,7 @@ document.addEventListener('click', (e) => {
 document.getElementById('pacienteCEP').addEventListener('blur', function () {
   const cep = this.value.replace(/\D/g, '');
   if (cep.length === 8) {
-    fetch(`[https://viacep.com.br/ws/$](https://viacep.com.br/ws/$){cep}/json/`)
+    fetch(`https://viacep.com.br/ws/${cep}/json/`)
       .then(res => res.json())
       .then(data => {
         if (!data.erro) {
@@ -804,16 +1707,30 @@ function salvarDocsNoStorage() {
   }
 }
 
-// SINCRONIZAÇÃO INICIAL COM GOOGLE SHEETS
+// SINCRONIZAÇÃO INICIAL COM GOOGLE SHEETS (PACIENTES + MEDICAÇÕES + AGENDA)
 async function sincronizarPacientesDaPlanilha() {
   if (!URL_APPS_SCRIPT) return;
   try {
     const resposta = await fetch(URL_APPS_SCRIPT);
     const resultado = await resposta.json();
-    if (resultado.status === 'sucesso' && resultado.pacientes) {
-      const locais = getAllPatients();
-      const mesclados = { ...locais, ...resultado.pacientes };
-      saveAllPatients(mesclados);
+    if (resultado.status === 'sucesso') {
+      if (resultado.pacientes) {
+        const locais = getAllPatients();
+        const mesclados = { ...locais, ...resultado.pacientes };
+        saveAllPatients(mesclados);
+      }
+
+      if (resultado.medicacoes && Array.isArray(resultado.medicacoes.comum) && Array.isArray(resultado.medicacoes.especial)) {
+        bancoMedicacoes = resultado.medicacoes;
+        localStorage.setItem(MEDS_STORAGE_KEY, JSON.stringify(bancoMedicacoes));
+        popularSelectsMedicacoes();
+      }
+
+      if (Array.isArray(resultado.agenda)) {
+        listaAgendamentos = resultado.agenda;
+        localStorage.setItem(AGENDA_STORAGE_KEY, JSON.stringify(listaAgendamentos));
+        renderizarCalendarioMensal();
+      }
     }
   } catch (err) {
     console.warn('Google Sheets indisponível no momento. Utilizando banco local.', err);
@@ -885,7 +1802,9 @@ function sha256Fallback(ascii) {
 
 function iniciarSistema() {
   document.getElementById('loginOverlay').style.display = 'none';
+  popularSelectsMedicacoes();
   resetForm();
+  mostrarTelaCalendario();
   sincronizarPacientesDaPlanilha();
 }
 
@@ -945,6 +1864,9 @@ function obterDataUltimoAtendimento(paciente) {
   }
   if (Array.isArray(paciente.extras)) {
     paciente.extras.forEach(ex => registrarData(ex.date));
+  }
+  if (Array.isArray(paciente.evolucoes)) {
+    paciente.evolucoes.forEach(ev => registrarData(ev.data));
   }
 
   return maisRecente;

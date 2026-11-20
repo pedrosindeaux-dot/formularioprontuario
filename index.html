@@ -50,10 +50,11 @@
       </div>
 
       <div class="action-buttons no-print">
+        <button type="button" id="btnAbrirAgenda" class="btn btn-primary">📅 Agenda / Início</button>
         <button type="button" id="btnNovoPaciente" class="btn btn-outline-primary">+ Novo Paciente</button>
         <button type="button" id="btnListarPacientes" class="btn btn-outline-primary">📋 Pacientes Cadastrados</button>
-        <button type="button" id="btnSave" class="btn btn-primary">💾 Gravar Paciente</button>
-        <button type="button" id="btnPrint" class="btn btn-secondary" onclick="window.print()">Imprimir / PDF</button>
+        <button type="button" id="btnSave" class="btn btn-primary" style="display: none;">💾 Gravar Paciente</button>
+        <button type="button" id="btnPrint" class="btn btn-secondary" style="display: none;">🖨️ Imprimir / PDF</button>
         <button type="button" id="btnBloquear" class="btn btn-outline-danger" style="margin-left: auto;">🔒 Bloquear</button>
       </div>
     </header>
@@ -62,602 +63,767 @@
     <section class="search-section no-print">
       <div class="search-box">
         <span class="search-icon">🔍</span>
-        <input type="text" id="inputBuscaPaciente" placeholder="Pesquisar paciente por Nome ou CPF..." autocomplete="off">
+        <input type="text" id="inputBuscaPaciente" placeholder="Pesquisar paciente por Nome ou CPF para abrir prontuário..." autocomplete="off">
         <button type="button" id="btnClearSearch" class="btn-clear-search" title="Limpar pesquisa">&times;</button>
       </div>
       <div id="searchResultsList" class="search-results-dropdown"></div>
     </section>
 
-    <!-- NAVEGAÇÃO DE SEPARADORES -->
-    <nav class="nav-tabs no-print">
-      <button type="button" class="tab-btn active" data-tab="tab-anamnese">📋 Anamnese</button>
-      <button type="button" class="tab-btn" data-tab="tab-odontograma">🩺 Odontograma/Tratamento</button>
-      <button type="button" class="tab-btn" data-tab="tab-receituario-comum">💊 Receituário Comum</button>
-      <button type="button" class="tab-btn" data-tab="tab-receituario-controlado">💊 Receituário Especial</button>
-      <button type="button" class="tab-btn" data-tab="tab-atestado">📜 Atestado</button>
-      <button type="button" class="tab-btn" data-tab="tab-declaracao">📜 Declaração</button>
-      <button type="button" class="tab-btn" data-tab="tab-documentos">📁 Documentos/Exames</button>
-    </nav>
+    <!-- ==========================================
+         TELA INICIAL: CALENDÁRIO MENSAL DE AGENDAMENTOS
+         ========================================== -->
+    <section id="viewCalendario" class="calendar-home-view no-print">
+      <div class="calendar-header-bar">
+        <div class="calendar-title-group">
+          <h2 id="calMesAnoTitulo">Novembro 2026</h2>
+          <span class="tag-badge" id="calTotalMesBadge">0 agendamentos no mês</span>
+        </div>
 
-    <!-- DADOS GERAIS DO PACIENTE -->
-    <section class="patient-card">
-      <div class="patient-card-header">
-        <span class="badge-status" id="badgePacienteAtual">Modo: Novo Cadastro</span>
-        <button type="button" id="btnExcluirPaciente" class="btn-text-danger no-print" style="display: none;">Excluir este Paciente</button>
+        <div class="calendar-nav-controls">
+          <button type="button" id="btnCalPrev" class="btn btn-outline-primary btn-sm">&larr; Anterior</button>
+          <button type="button" id="btnCalHoje" class="btn btn-outline-primary btn-sm">Hoje</button>
+          <button type="button" id="btnCalNext" class="btn btn-outline-primary btn-sm">Próximo &rarr;</button>
+          <button type="button" id="btnNovoAgendamentoRapido" class="btn btn-primary btn-sm">+ Novo Agendamento</button>
+        </div>
       </div>
 
-      <div class="form-grid">
-        <div class="form-group col-span-2">
-          <label for="pacienteNome">Nome Completo do Paciente: *</label>
-          <input type="text" id="pacienteNome" placeholder="Ex.: Maria Francisca Silva" required>
-        </div>
-        <div class="form-group">
-          <label for="pacienteDataNasc">Data de Nascimento:</label>
-          <input type="date" id="pacienteDataNasc">
-        </div>
-        <div class="form-group">
-          <label for="pacienteCPF">CPF / Doc (obrigatório p/ receita):</label>
-          <input type="text" id="pacienteCPF" placeholder="000.000.000-00">
-        </div>
-
-        <div class="form-group col-span-2">
-          <label for="pacienteTel">Telemóvel / WhatsApp:</label>
-          <input type="tel" id="pacienteTel" placeholder="(85) 90000-0000">
-        </div>
-        <div class="form-group col-span-2">
-          <label for="pacienteEmergencia">Contacto de Emergência:</label>
-          <input type="text" id="pacienteEmergencia" placeholder="Nome / Telefone">
-        </div>
-
-        <div class="form-group">
-          <label for="pacienteCEP">CEP:</label>
-          <input type="text" id="pacienteCEP" placeholder="60000-000" maxlength="9">
-        </div>
-        <div class="form-group col-span-2">
-          <label for="pacienteLogradouro">Endereço (Rua, Av., Número e Complemento):</label>
-          <input type="text" id="pacienteLogradouro" placeholder="Ex.: Rua Major Facundo, 123 - Apto 402">
-        </div>
-        <div class="form-group">
-          <label for="pacienteBairroCidade">Bairro / Cidade - UF:</label>
-          <input type="text" id="pacienteBairroCidade" placeholder="Ex.: Aldeota, Fortaleza - CE">
-        </div>
+      <div class="calendar-weekdays">
+        <div>Dom</div>
+        <div>Seg</div>
+        <div>Ter</div>
+        <div>Qua</div>
+        <div>Qui</div>
+        <div>Sex</div>
+        <div>Sáb</div>
       </div>
+
+      <div id="calendarGrid" class="calendar-grid"></div>
     </section>
 
-    <!-- ABA 1: ANAMNESE -->
-    <main id="tab-anamnese" class="tab-content active">
-      <div class="section-box">
-        <h2 class="section-title">Queixa Principal & História Médica</h2>
+    <!-- ==========================================
+         ÁREA DO PRONTUÁRIO DO PACIENTE
+         ========================================== -->
+    <div id="viewProntuario" style="display: none;">
+      <!-- NAVEGAÇÃO DE SEPARADORES -->
+      <nav class="nav-tabs no-print">
+        <button type="button" class="tab-btn active" data-tab="tab-anamnese">📋 Anamnese</button>
+        <button type="button" class="tab-btn" data-tab="tab-odontograma">🩺 Odontograma/Tratamento</button>
+        <button type="button" class="tab-btn" data-tab="tab-evolucao">📝 Evolução</button>
+        <button type="button" class="tab-btn" data-tab="tab-receituario-comum">💊 Receituário Comum</button>
+        <button type="button" class="tab-btn" data-tab="tab-receituario-controlado">💊 Receituário Especial</button>
+        <button type="button" class="tab-btn" data-tab="tab-atestado">📜 Atestado</button>
+        <button type="button" class="tab-btn" data-tab="tab-declaracao">📜 Declaração</button>
+        <button type="button" class="tab-btn" data-tab="tab-documentos">📁 Documentos/Exames</button>
+      </nav>
+
+      <!-- DADOS GERAIS DO PACIENTE -->
+      <section class="patient-card">
+        <div class="patient-card-header">
+          <span class="badge-status" id="badgePacienteAtual">Modo: Novo Cadastro</span>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <button type="button" id="btnAgendarEstePaciente" class="btn btn-sm btn-outline-primary no-print">📅 Agendar Retorno</button>
+            <button type="button" id="btnExcluirPaciente" class="btn-text-danger no-print" style="display: none;">Excluir este Paciente</button>
+          </div>
+        </div>
+
         <div class="form-grid">
-          <div class="form-group col-span-3">
-            <label for="queixaPrincipal">Queixa Principal (com as palavras do paciente):</label>
-            <input type="text" id="queixaPrincipal" placeholder="Ex.: Dor no dente de trás ao mastigar ou tomar gelado">
+          <div class="form-group col-span-2">
+            <label for="pacienteNome">Nome Completo do Paciente: *</label>
+            <input type="text" id="pacienteNome" placeholder="Ex.: Maria Francisca Silva" required>
           </div>
           <div class="form-group">
-            <label for="tempoEvolucao">Início dos Sintomas:</label>
-            <input type="text" id="tempoEvolucao" placeholder="Ex.: Há 3 dias">
+            <label for="pacienteDataNasc">Data de Nascimento:</label>
+            <input type="date" id="pacienteDataNasc">
           </div>
           <div class="form-group">
-            <label for="escalaDor">Escala de Dor (0 a 10):</label>
-            <input type="number" id="escalaDor" min="0" max="10" placeholder="0">
+            <label for="pacienteCPF">CPF / Doc (obrigatório p/ receita):</label>
+            <input type="text" id="pacienteCPF" placeholder="000.000.000-00">
+          </div>
+
+          <div class="form-group col-span-2">
+            <label for="pacienteTel">Telemóvel / WhatsApp:</label>
+            <input type="tel" id="pacienteTel" placeholder="(85) 90000-0000">
+          </div>
+          <div class="form-group col-span-2">
+            <label for="pacienteEmergencia">Contacto de Emergência:</label>
+            <input type="text" id="pacienteEmergencia" placeholder="Nome / Telefone">
+          </div>
+
+          <div class="form-group">
+            <label for="pacienteCEP">CEP:</label>
+            <input type="text" id="pacienteCEP" placeholder="60000-000" maxlength="9">
+          </div>
+          <div class="form-group col-span-2">
+            <label for="pacienteLogradouro">Endereço (Rua, Av., Número e Complemento):</label>
+            <input type="text" id="pacienteLogradouro" placeholder="Ex.: Rua Major Facundo, 123 - Apto 402">
           </div>
           <div class="form-group">
-            <label for="ultimaVisita">Última Consulta Dentária:</label>
-            <input type="text" id="ultimaVisita" placeholder="Ex.: Há mais de 1 ano">
-          </div>
-        </div>
-      </div>
-
-      <div class="section-box">
-        <h2 class="section-title">Questionário de Saúde e Risco Cirúrgico</h2>
-        <table class="anamnese-table">
-          <thead>
-            <tr>
-              <th>Condição Médica / Pergunta</th>
-              <th style="width: 70px; text-align: center;">Sim</th>
-              <th style="width: 70px; text-align: center;">Não</th>
-              <th>Detalhes / Observações Clínicas</th>
-            </tr>
-          </thead>
-          <tbody id="anamneseTbody">
-            <tr data-key="med_tratamento">
-              <td>Encontra-se sob tratamento médico atualmente?</td>
-              <td class="text-center"><input type="radio" name="med_tratamento" value="sim"></td>
-              <td class="text-center"><input type="radio" name="med_tratamento" value="nao" checked></td>
-              <td><input type="text" class="table-input" placeholder="Qual o motivo/especialidade?"></td>
-            </tr>
-            <tr data-key="med_continuo">
-              <td>Toma algum medicamento de uso contínuo?</td>
-              <td class="text-center"><input type="radio" name="med_continuo" value="sim"></td>
-              <td class="text-center"><input type="radio" name="med_continuo" value="nao" checked></td>
-              <td><input type="text" class="table-input" placeholder="Medicamentos e dosagens"></td>
-            </tr>
-            <tr data-key="med_alergia" class="alert-row">
-              <td><strong>Possui alergia a medicamentos, anestésicos ou látex?</strong></td>
-              <td class="text-center"><input type="radio" name="med_alergia" value="sim"></td>
-              <td class="text-center"><input type="radio" name="med_alergia" value="nao" checked></td>
-              <td><input type="text" class="table-input highlight-field" placeholder="Descrever as alergias conhecidas"></td>
-            </tr>
-            <tr data-key="med_cardio" class="alert-row">
-              <td><strong>Problemas cardíacos, hipertensão ou arritmia?</strong></td>
-              <td class="text-center"><input type="radio" name="med_cardio" value="sim"></td>
-              <td class="text-center"><input type="radio" name="med_cardio" value="nao" checked></td>
-              <td><input type="text" class="table-input" placeholder="Pressão habitual / medicação"></td>
-            </tr>
-            <tr data-key="med_bifosfonato" class="alert-row">
-              <td><strong>Usa anticoagulantes ou bifosfonatos (ex: alendronato)?</strong></td>
-              <td class="text-center"><input type="radio" name="med_bifosfonato" value="sim"></td>
-              <td class="text-center"><input type="radio" name="med_bifosfonato" value="nao" checked></td>
-              <td><input type="text" class="table-input highlight-field" placeholder="Tempo de utilização e indicação"></td>
-            </tr>
-            <tr data-key="med_diabetes">
-              <td>Diabetes?</td>
-              <td class="text-center"><input type="radio" name="med_diabetes" value="sim"></td>
-              <td class="text-center"><input type="radio" name="med_diabetes" value="nao" checked></td>
-              <td><input type="text" class="table-input" placeholder="Glicemia média / controlada?"></td>
-            </tr>
-            <tr data-key="med_asma">
-              <td>Doenças respiratórias (Asma, bronquite)?</td>
-              <td class="text-center"><input type="radio" name="med_asma" value="sim"></td>
-              <td class="text-center"><input type="radio" name="med_asma" value="nao" checked></td>
-              <td><input type="text" class="table-input" placeholder="Frequência de crises / uso de inalador"></td>
-            </tr>
-            <tr data-key="med_hemorragia">
-              <td>Histórico de hemorragia ou sangramento excessivo?</td>
-              <td class="text-center"><input type="radio" name="med_hemorragia" value="sim"></td>
-              <td class="text-center"><input type="radio" name="med_hemorragia" value="nao" checked></td>
-              <td><input type="text" class="table-input" placeholder="Em cirurgias ou extrações anteriores"></td>
-            </tr>
-            <tr data-key="med_fumo">
-              <td>Fumador ou consome bebidas alcoólicas com frequência?</td>
-              <td class="text-center"><input type="radio" name="med_fumo" value="sim"></td>
-              <td class="text-center"><input type="radio" name="med_fumo" value="nao" checked></td>
-              <td><input type="text" class="table-input" placeholder="Quantidade diária / semanal"></td>
-            </tr>
-            <tr data-key="med_atm">
-              <td>Aperta ou range os dentes / estalos na mandíbula (ATM)?</td>
-              <td class="text-center"><input type="radio" name="med_atm" value="sim"></td>
-              <td class="text-center"><input type="radio" name="med_atm" value="nao" checked></td>
-              <td><input type="text" class="table-input" placeholder="Sintomas matinais / dores na face"></td>
-            </tr>
-            <tr data-key="med_gestante">
-              <td>(Mulheres) Está grávida ou a amamentar?</td>
-              <td class="text-center"><input type="radio" name="med_gestante" value="sim"></td>
-              <td class="text-center"><input type="radio" name="med_gestante" value="nao" checked></td>
-              <td><input type="text" class="table-input" placeholder="Idade gestacional (semanas)"></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- TERMO DE VERACIDADE E CONSENTIMENTO INFORMADO -->
-      <div class="legal-box consent-section">
-        <h3 class="consent-title">Termo de Veracidade e Consentimento Informado</h3>
-        
-        <div class="consent-text">
-          <p>
-            <strong>1. Veracidade das Informações:</strong> Declaro que todas as respostas fornecidas no presente questionário de anamnese e histórico médico são fiéis à verdade e completas, não tendo omitido ou falseado qualquer dado relevante sobre o meu estado geral de saúde, tratamentos médicos pregressos ou vigentes, medicamentos em uso contínuo, alergias ou reações adversas anteriores. Comprometo-me formalmente a comunicar à equipa clínica qualquer alteração subsequente no meu estado de saúde ou posologia medicamentosa antes de cada atendimento.
-          </p>
-          <p>
-            <strong>2. Ciência de Riscos e Intercorrências:</strong> Fui devidamente informado(a) e esclarecido(a) quanto aos diagnósticos apurados, aos riscos biológicos inerentes aos procedimentos odontológicos propostos (tais como sensibilidade dentária transitória, edema, hematomas, parestesias temporárias ou eventuais intercorrências anestésicas) e às alternativas terapêuticas cabíveis.
-          </p>
-          <p>
-            <strong>3. Consentimento e LGPD:</strong> Autorizo o Cirurgião-Dentista responsável e a sua equipa clínica a executarem os procedimentos diagnósticos, exames radiográficos e condutas clínicas necessárias. Autorizo igualmente o tratamento confidencial dos meus dados cadastrais e de saúde, salvaguardados pelo sigilo profissional ético e em conformidade com a legislação de proteção de dados.
-          </p>
-        </div>
-
-        <div class="consent-date-location">
-          <span>Fortaleza - CE, </span>
-          <input type="text" class="input-inline-date" id="termoDataLocal" placeholder="____ de _________________ de 2026">
-        </div>
-
-        <div class="signatures-grid">
-          <div class="sig-line">
-            <div class="line"></div>
-            <span class="sig-name" id="sigPacienteNome">Assinatura do Paciente / Responsável Legal</span>
-            <span class="sig-doc">CPF / Grau de Parentesco: ____________________</span>
-          </div>
-          <div class="sig-line">
-            <div class="line"></div>
-            <span class="sig-name">Dr. Pedro Sindeaux Pinheiro</span>
-            <span class="sig-doc">Cirurgião-Dentista — CRO CE 10096</span>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- ABA 2: ODONTOGRAMA & ORÇAMENTO -->
-    <main id="tab-odontograma" class="tab-content">
-      <section class="kpi-panel">
-        <div class="kpi-card">
-          <span class="kpi-title">Valor Total do Plano</span>
-          <span class="kpi-value" id="kpiTotal">R$ 0,00</span>
-        </div>
-        <div class="kpi-card executed">
-          <span class="kpi-title">Executado (Concluído)</span>
-          <span class="kpi-value" id="kpiExecutado">R$ 0,00</span>
-        </div>
-        <div class="kpi-card pending">
-          <span class="kpi-title">Saldo Restante</span>
-          <span class="kpi-value" id="kpiPendente">R$ 0,00</span>
-        </div>
-        <div class="kpi-card">
-          <span class="kpi-title">Progresso do Tratamento</span>
-          <span class="kpi-value" id="kpiPercent">0%</span>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" id="progressBar"></div>
+            <label for="pacienteBairroCidade">Bairro / Cidade - UF:</label>
+            <input type="text" id="pacienteBairroCidade" placeholder="Ex.: Aldeota, Fortaleza - CE">
           </div>
         </div>
       </section>
 
-      <section class="section-box">
-        <div class="section-header-flex">
-          <h2 class="section-title">Odontograma & Registro por Elemento</h2>
-          <span class="tag-badge">FDI (2 Dígitos)</span>
-        </div>
-
-        <div class="odontograma-cols">
-          <div class="quadrante-col">
-            <h3 class="col-title">Arcada Superior Direita (Q1)</h3>
-            <div class="dentes-list" id="q1List"></div>
-
-            <h3 class="col-title" style="margin-top: 24px;">Arcada Inferior Direita (Q4)</h3>
-            <div class="dentes-list" id="q4List"></div>
-          </div>
-
-          <div class="quadrante-col">
-            <h3 class="col-title">Arcada Superior Esquerda (Q2)</h3>
-            <div class="dentes-list" id="q2List"></div>
-
-            <h3 class="col-title" style="margin-top: 24px;">Arcada Inferior Esquerda (Q3)</h3>
-            <div class="dentes-list" id="q3List"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section-box">
-        <div class="section-header-flex">
-          <h2 class="section-title">Outros Procedimentos Globais</h2>
-          <button type="button" id="btnAddExtra" class="btn btn-sm btn-outline-primary no-print">+ Adicionar Procedimento</button>
-        </div>
-        <div id="extraProceduresList" class="extra-list"></div>
-      </section>
-
-      <section class="payment-box">
-        <div class="payment-fields">
-          <div class="form-group">
-            <label for="condicaoPgto">Condições de Pagamento / Parcelamento:</label>
-            <input type="text" id="condicaoPgto" placeholder="Ex.: Entrada de 50% + 3x no cartão de crédito sem juros">
-          </div>
-          <div class="form-group">
-            <label for="descontoReais">Desconto Concedido (R$):</label>
-            <input type="number" id="descontoReais" step="0.01" min="0" value="0.00">
-          </div>
-        </div>
-        <div class="payment-summary">
-          <p>Subtotal Bruto: <strong id="lblSubtotal">R$ 0,00</strong></p>
-          <p>Desconto Aplicado: <strong id="lblDesconto">R$ 0,00</strong></p>
-          <p class="final-price">Total Líquido do Tratamento: <strong id="lblLiquido">R$ 0,00</strong></p>
-        </div>
-      </section>
-
-      <div class="legal-box">
-        <p><strong>Aprovação do Plano de Tratamento:</strong> Declaro que tomei conhecimento de todas as opções de tratamento, valores propostos e prazos previstos, estando de pleno acordo com as condições estipuladas.</p>
-        <div class="signatures-grid">
-          <div class="sig-line">
-            <div class="line"></div>
-            <span>Assinatura do Paciente / Responsável</span>
-          </div>
-          <div class="sig-line">
-            <div class="line"></div>
-            <span>Dr. Pedro Sindeaux Pinheiro - CRO CE 10096</span>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- ABA 3: RECEITUÁRIO COMUM -->
-    <main id="tab-receituario-comum" class="tab-content doc-page doc-portrait">
-      <div class="doc-header">
-        <img src="logo.png" alt="Logótipo" class="doc-logo" onerror="this.style.display='none'">
-        <div class="doc-dentist-info">
-          <h2>Dr. Pedro Sindeaux Pinheiro</h2>
-          <p class="cro">Cirurgião-Dentista — CRO CE 10096</p>
-          <p class="subtitle">Cirurgia, Prótese e Clínica Dentária</p>
-          <p class="doc-address">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | Tel/WhatsApp: (85) 92001-0167</p>
-        </div>
-      </div>
-
-      <div class="doc-actions-bar no-print">
-        <button type="button" class="btn btn-outline-primary" id="btnArquivarReceitaComum">
-          💾 Arquivar este Receituário em Documentos
-        </button>
-      </div>
-
-      <div class="doc-title-bar">
-        <h3>RECEITUÁRIO ODONTOLÓGICO</h3>
-      </div>
-
-      <div class="doc-patient-info">
-        <p><strong>Paciente:</strong> <span class="bind-nome">____________________________________________________</span></p>
-      </div>
-
-      <div class="prescription-body">
-        <label class="doc-field-label no-print" for="rcPrescricao">Prescrição e Posologia:</label>
-        <textarea id="rcPrescricao" class="doc-textarea" rows="12" placeholder="Uso Interno:&#10;&#10;1. Dipirona Monoidratada 500mg/mL gotas ou comprimido 500mg ------ 1 cx&#10;   Tomar 1 comprimido (ou 35 gotas) de 6 em 6 horas se dor.&#10;&#10;2. Dexametasona 4mg ---------------------------------------------- 1 cx&#10;   Tomar 1 comprimido 1 hora antes do procedimento cirúrgico."></textarea>
-      </div>
-
-      <div class="doc-footer">
-        <div class="doc-date-city">
-          Fortaleza - CE, <span class="bind-data-atual"></span>
-        </div>
-        <div class="doc-sig-box">
-          <div class="doc-sig-line"></div>
-          <strong>Dr. Pedro Sindeaux Pinheiro</strong>
-          <span>CRO CE 10096</span>
-        </div>
-      </div>
-    </main>
-
-    <!-- ABA 4: RECEITUÁRIO ESPECIAL (2 VIAS LADO A LADO - PAISAGEM) -->
-    <main id="tab-receituario-controlado" class="tab-content doc-landscape-container">
-      <div class="doc-actions-bar no-print" style="margin-bottom: 12px;">
-        <button type="button" class="btn btn-outline-primary" id="btnArquivarReceitaEspecial">
-          💾 Arquivar Receituário Especial em Documentos
-        </button>
-      </div>
-      <div class="landscape-sheet">
-        <!-- 1ª VIA: FARMÁCIA -->
-        <div class="via-column via-farmacia">
-          <div class="doc-header mini">
-            <img src="logo.png" alt="Logótipo" class="doc-logo-mini" onerror="this.style.display='none'">
-            <div class="doc-dentist-info">
-              <h2>Dr. Pedro Sindeaux Pinheiro</h2>
-              <p class="cro">CRO CE 10096 — Cirurgia, Prótese e Clínica Dentária</p>
-              <p class="doc-address mini">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | (85) 92001-0167</p>
+      <!-- ABA 1: ANAMNESE -->
+      <main id="tab-anamnese" class="tab-content active">
+        <div class="section-box">
+          <h2 class="section-title">Queixa Principal & História Médica</h2>
+          <div class="form-grid">
+            <div class="form-group col-span-3">
+              <label for="queixaPrincipal">Queixa Principal (com as palavras do paciente):</label>
+              <input type="text" id="queixaPrincipal" placeholder="Ex.: Dor no dente de trás ao mastigar ou tomar gelado">
             </div>
-          </div>
-          <div class="via-tag">1ª VIA — RETENÇÃO DA FARMÁCIA</div>
-          <div class="doc-title-bar mini">
-            <h3>RECEITA DE CONTROLE ESPECIAL</h3>
-          </div>
-
-          <div class="doc-patient-card-mini">
-            <p><strong>Paciente:</strong> <span class="bind-nome"></span></p>
-            <p><strong>CPF:</strong> <span class="bind-cpf"></span> | <strong>Idade:</strong> <span class="bind-idade"></span></p>
-            <p><strong>Endereço:</strong> <span class="bind-endereco"></span></p>
-          </div>
-
-          <div class="prescription-body-mini">
-            <textarea class="doc-textarea mini bind-antibiotico-text" rows="7" placeholder="Prescrição do Medicamento Controlado:&#10;1. Amoxicilina 500mg ------------------ 21 cápsulas&#10;   Tomar 1 cápsula via oral de 8 em 8 horas por 7 dias."></textarea>
-          </div>
-
-          <div class="doc-date-city mini">Fortaleza - CE, <span class="bind-data-atual"></span></div>
-
-          <div class="doc-sig-box mini">
-            <div class="doc-sig-line"></div>
-            <strong>Dr. Pedro Sindeaux Pinheiro</strong>
-            <span>Cirurgião-Dentista — CRO CE 10096</span>
-          </div>
-
-          <div class="rdc-anvisa-box">
-            <div class="rdc-section">
-              <span class="rdc-title">IDENTIFICAÇÃO DO COMPRADOR</span>
-              <p>Nome: ____________________________________</p>
-              <p>RG/Órgão: ________________ CPF: ____________</p>
-              <p>Endereço: _________________________________</p>
-              <p>Telefone: _________________ Assinatura: _______</p>
+            <div class="form-group">
+              <label for="tempoEvolucao">Início dos Sintomas:</label>
+              <input type="text" id="tempoEvolucao" placeholder="Ex.: Há 3 dias">
             </div>
-            <div class="rdc-section">
-              <span class="rdc-title">IDENTIFICAÇÃO DO FORNECEDOR</span>
-              <p>Data do Atendimento: _____/_____/2026</p>
-              <p>Farmacêutico(a): ___________________________</p>
-              <p>Lote / Validade: ____________________________</p>
+            <div class="form-group">
+              <label for="escalaDor">Escala de Dor (0 a 10):</label>
+              <input type="number" id="escalaDor" min="0" max="10" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label for="ultimaVisita">Última Consulta Dentária:</label>
+              <input type="text" id="ultimaVisita" placeholder="Ex.: Há mais de 1 ano">
             </div>
           </div>
         </div>
 
-        <!-- 2ª VIA: PACIENTE -->
-        <div class="via-column via-paciente">
-          <div class="doc-header mini">
-            <img src="logo.png" alt="Logótipo" class="doc-logo-mini" onerror="this.style.display='none'">
-            <div class="doc-dentist-info">
-              <h2>Dr. Pedro Sindeaux Pinheiro</h2>
-              <p class="cro">CRO CE 10096 — Cirurgia, Prótese e Clínica Dentária</p>
-              <p class="doc-address mini">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | (85) 92001-0167</p>
-            </div>
-          </div>
-          <div class="via-tag">2ª VIA — ORIENTAÇÃO DO PACIENTE</div>
-          <div class="doc-title-bar mini">
-            <h3>RECEITA DE CONTROLE ESPECIAL</h3>
-          </div>
-
-          <div class="doc-patient-card-mini">
-            <p><strong>Paciente:</strong> <span class="bind-nome"></span></p>
-            <p><strong>CPF:</strong> <span class="bind-cpf"></span> | <strong>Idade:</strong> <span class="bind-idade"></span></p>
-            <p><strong>Endereço:</strong> <span class="bind-endereco"></span></p>
-          </div>
-
-          <div class="prescription-body-mini">
-            <textarea class="doc-textarea mini bind-antibiotico-text" rows="11" placeholder="Orientações e cuidados para o paciente tomar o medicamento nos horários corretos sem interromper o tratamento..."></textarea>
-          </div>
-
-          <div class="patient-note-box">
-            <p><strong>Atenção:</strong> Respeite rigorosamente os horários e tome o medicamento durante todo o período determinado, mesmo que os sintomas desapareçam antes.</p>
-          </div>
-
-          <div class="doc-date-city mini">Fortaleza - CE, <span class="bind-data-atual"></span></div>
-
-          <div class="doc-sig-box mini">
-            <div class="doc-sig-line"></div>
-            <strong>Dr. Pedro Sindeaux Pinheiro</strong>
-            <span>Cirurgião-Dentista — CRO CE 10096</span>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- ABA 5: ATESTADO ODONTOLÓGICO -->
-    <main id="tab-atestado" class="tab-content doc-page doc-portrait">
-      <div class="doc-header">
-        <img src="logo.png" alt="Logótipo" class="doc-logo" onerror="this.style.display='none'">
-        <div class="doc-dentist-info">
-          <h2>Dr. Pedro Sindeaux Pinheiro</h2>
-          <p class="cro">Cirurgião-Dentista — CRO CE 10096</p>
-          <p class="subtitle">Cirurgia, Prótese e Clínica Dentária</p>
-          <p class="doc-address">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | Tel/WhatsApp: (85) 92001-0167</p>
-        </div>
-      </div>
-
-      <div class="doc-actions-bar no-print">
-        <button type="button" class="btn btn-outline-primary" id="btnArquivarAtestado">
-          💾 Arquivar este Atestado em Documentos
-        </button>
-      </div>
-
-      <div class="doc-title-bar">
-        <h3>ATESTADO ODONTOLÓGICO</h3>
-      </div>
-
-      <div class="doc-body-text">
-        <p class="atestado-p">
-          Atesto para os devidos fins que o(a) Sr.(a) <strong class="bind-nome">___________________________________</strong>, portador(a) do documento de identidade/CPF nº <strong class="bind-cpf">__________________</strong>, esteve sob os meus cuidados profissionais no dia de hoje, tendo sido submetido(a) a intervenção odontológica especializada, necessitando de <input type="number" id="atDias" value="1" min="1" class="doc-inline-input" style="width: 50px;"> dia(s) de repouso e convalescença para a sua recuperação, a contar a partir de <input type="date" id="atDataInicio" class="doc-inline-input">.
-        </p>
-
-        <div class="cid-group">
-          <label>
-            <input type="checkbox" id="chkCid"> Autorizo a inclusão do código da Classificação Internacional de Doenças (CID-10) neste atestado.
-          </label>
-          <div id="cidInputBox" style="display: none; margin-top: 8px;">
-            <span>Código CID-10: </span>
-            <input type="text" id="txtCid" class="doc-inline-input" placeholder="Ex.: K04.0 (Pulpite) / K01.1 (Dentes inclusos)" style="width: 320px;">
-          </div>
-        </div>
-      </div>
-
-      <div class="doc-footer">
-        <div class="doc-date-city">
-          Fortaleza - CE, <span class="bind-data-atual"></span>
-        </div>
-        <div class="doc-sig-box">
-          <div class="doc-sig-line"></div>
-          <strong>Dr. Pedro Sindeaux Pinheiro</strong>
-          <span>CRO CE 10096</span>
-        </div>
-      </div>
-    </main>
-
-    <!-- ABA 6: DECLARAÇÃO DE COMPARECIMENTO -->
-    <main id="tab-declaracao" class="tab-content doc-page doc-portrait">
-      <div class="doc-header">
-        <img src="logo.png" alt="Logótipo" class="doc-logo" onerror="this.style.display='none'">
-        <div class="doc-dentist-info">
-          <h2>Dr. Pedro Sindeaux Pinheiro</h2>
-          <p class="cro">Cirurgião-Dentista — CRO CE 10096</p>
-          <p class="subtitle">Cirurgia, Prótese e Clínica Dentária</p>
-          <p class="doc-address">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | Tel/WhatsApp: (85) 92001-0167</p>
-        </div>
-      </div>
-
-      <div class="doc-actions-bar no-print">
-        <button type="button" class="btn btn-outline-primary" id="btnArquivarDeclaracao">
-          💾 Arquivar esta Declaração em Documentos
-        </button>
-      </div>
-
-      <div class="doc-title-bar">
-        <h3>DECLARAÇÃO DE COMPARECIMENTO</h3>
-      </div>
-
-      <div class="doc-body-text">
-        <p class="atestado-p">
-          Declaro para os devidos fins de comprovação que o(a) Sr.(a) <strong class="bind-nome">___________________________________</strong>, portador(a) do documento/CPF nº <strong class="bind-cpf">__________________</strong>, compareceu a esta clínica odontológica na presente data para realização de consulta e procedimentos clínicos, tendo permanecido nas dependências do consultório no seguinte intervalo:
-        </p>
-        <div class="horario-box">
-          <span>Horário de Início: </span>
-          <input type="time" id="decHoraIni" class="doc-inline-input" value="14:00">
-          <span style="margin-left: 20px;">Horário de Término: </span>
-          <input type="time" id="decHoraFim" class="doc-inline-input" value="15:30">
-        </div>
-        <p class="doc-disclaimer-sub">
-          A presente declaração serve estritamente para justificar o período em que o paciente esteve em atendimento clínico, não concedendo dispensa de jornada integral.
-        </p>
-      </div>
-
-      <div class="doc-footer">
-        <div class="doc-date-city">
-          Fortaleza - CE, <span class="bind-data-atual"></span>
-        </div>
-        <div class="doc-sig-box">
-          <div class="doc-sig-line"></div>
-          <strong>Dr. Pedro Sindeaux Pinheiro</strong>
-          <span>CRO CE 10096</span>
-        </div>
-      </div>
-    </main>
-
-    <!-- ABA 7: GESTÃO DE DOCUMENTOS E EXAMES -->
-    <main id="tab-documentos" class="tab-content">
-      <div class="section-box no-print">
-        <div class="section-header-flex">
-          <h2 class="section-title">Anexar Exame Externo (Radiografia, Tomografia, PDF)</h2>
-        </div>
-
-        <div class="upload-panel-grid">
-          <div class="form-group">
-            <label for="docTipoUpload">Tipo de Arquivo:</label>
-            <select id="docTipoUpload">
-              <option value="Radiografia Panorâmica">Radiografia Panorâmica</option>
-              <option value="Tomografia / Cone Beam">Tomografia / Laudo TC</option>
-              <option value="Radiografia Periapical">Radiografia Periapical / Interproximal</option>
-              <option value="Foto Intraoral">Fotografia Clínica / Intraoral</option>
-              <option value="Exame de Sangue / Geral">Exame Laboratorial / Outros</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="docDescUpload">Descrição / Observação:</label>
-            <input type="text" id="docDescUpload" placeholder="Ex.: Panorâmica inicial pré-extração 38 e 48">
-          </div>
-
-          <div class="form-group">
-            <label for="inputFileExame">Selecione a Imagem ou PDF:</label>
-            <input type="file" id="inputFileExame" accept="image/*,application/pdf">
-          </div>
-
-          <div class="upload-btn-wrap">
-            <button type="button" id="btnUploadDoc" class="btn btn-primary" style="height: 38px; margin-top: 18px;">
-              + Adicionar ao Prontuário
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-box">
-        <div class="section-header-flex">
-          <h2 class="section-title">Histórico de Documentos e Exames Anexados</h2>
-          <span class="tag-badge" id="badgeTotalDocs">0 itens vinculados</span>
-        </div>
-
-        <div class="table-responsive">
-          <table class="docs-table">
+        <div class="section-box">
+          <h2 class="section-title">Questionário de Saúde e Risco Cirúrgico</h2>
+          <table class="anamnese-table">
             <thead>
               <tr>
-                <th style="width: 130px;">Data / Hora</th>
-                <th style="width: 180px;">Categoria</th>
-                <th>Descrição / Resumo do Conteúdo</th>
-                <th style="width: 160px; text-align: center;">Ações</th>
+                <th>Condição Médica / Pergunta</th>
+                <th style="width: 70px; text-align: center;">Sim</th>
+                <th style="width: 70px; text-align: center;">Não</th>
+                <th>Detalhes / Observações Clínicas</th>
               </tr>
             </thead>
-            <tbody id="listaDocumentosTbody">
-              <tr>
-                <td colspan="4" class="text-center text-muted" style="padding: 24px;">Nenhum documento ou exame gravado para este paciente.</td>
+            <tbody id="anamneseTbody">
+              <tr data-key="med_tratamento">
+                <td>Encontra-se sob tratamento médico atualmente?</td>
+                <td class="text-center"><input type="radio" name="med_tratamento" value="sim"></td>
+                <td class="text-center"><input type="radio" name="med_tratamento" value="nao" checked></td>
+                <td><input type="text" class="table-input" placeholder="Qual o motivo/especialidade?"></td>
+              </tr>
+              <tr data-key="med_continuo">
+                <td>Toma algum medicamento de uso contínuo?</td>
+                <td class="text-center"><input type="radio" name="med_continuo" value="sim"></td>
+                <td class="text-center"><input type="radio" name="med_continuo" value="nao" checked></td>
+                <td><input type="text" class="table-input" placeholder="Medicamentos e dosagens"></td>
+              </tr>
+              <tr data-key="med_alergia" class="alert-row">
+                <td><strong>Possui alergia a medicamentos, anestésicos ou látex?</strong></td>
+                <td class="text-center"><input type="radio" name="med_alergia" value="sim"></td>
+                <td class="text-center"><input type="radio" name="med_alergia" value="nao" checked></td>
+                <td><input type="text" class="table-input highlight-field" placeholder="Descrever as alergias conhecidas"></td>
+              </tr>
+              <tr data-key="med_cardio" class="alert-row">
+                <td><strong>Problemas cardíacos, hipertensão ou arritmia?</strong></td>
+                <td class="text-center"><input type="radio" name="med_cardio" value="sim"></td>
+                <td class="text-center"><input type="radio" name="med_cardio" value="nao" checked></td>
+                <td><input type="text" class="table-input" placeholder="Pressão habitual / medicação"></td>
+              </tr>
+              <tr data-key="med_bifosfonato" class="alert-row">
+                <td><strong>Usa anticoagulantes ou bifosfonatos (ex: alendronato)?</strong></td>
+                <td class="text-center"><input type="radio" name="med_bifosfonato" value="sim"></td>
+                <td class="text-center"><input type="radio" name="med_bifosfonato" value="nao" checked></td>
+                <td><input type="text" class="table-input highlight-field" placeholder="Tempo de utilização e indicação"></td>
+              </tr>
+              <tr data-key="med_diabetes">
+                <td>Diabetes?</td>
+                <td class="text-center"><input type="radio" name="med_diabetes" value="sim"></td>
+                <td class="text-center"><input type="radio" name="med_diabetes" value="nao" checked></td>
+                <td><input type="text" class="table-input" placeholder="Glicemia média / controlada?"></td>
+              </tr>
+              <tr data-key="med_asma">
+                <td>Doenças respiratórias (Asma, bronquite)?</td>
+                <td class="text-center"><input type="radio" name="med_asma" value="sim"></td>
+                <td class="text-center"><input type="radio" name="med_asma" value="nao" checked></td>
+                <td><input type="text" class="table-input" placeholder="Frequência de crises / uso de inalador"></td>
+              </tr>
+              <tr data-key="med_hemorragia">
+                <td>Histórico de hemorragia ou sangramento excessivo?</td>
+                <td class="text-center"><input type="radio" name="med_hemorragia" value="sim"></td>
+                <td class="text-center"><input type="radio" name="med_hemorragia" value="nao" checked></td>
+                <td><input type="text" class="table-input" placeholder="Em cirurgias ou extrações anteriores"></td>
+              </tr>
+              <tr data-key="med_fumo">
+                <td>Fumador ou consome bebidas alcoólicas com frequência?</td>
+                <td class="text-center"><input type="radio" name="med_fumo" value="sim"></td>
+                <td class="text-center"><input type="radio" name="med_fumo" value="nao" checked></td>
+                <td><input type="text" class="table-input" placeholder="Quantidade diária / semanal"></td>
+              </tr>
+              <tr data-key="med_atm">
+                <td>Aperta ou range os dentes / estalos na mandíbula (ATM)?</td>
+                <td class="text-center"><input type="radio" name="med_atm" value="sim"></td>
+                <td class="text-center"><input type="radio" name="med_atm" value="nao" checked></td>
+                <td><input type="text" class="table-input" placeholder="Sintomas matinais / dores na face"></td>
+              </tr>
+              <tr data-key="med_gestante">
+                <td>(Mulheres) Está grávida ou a amamentar?</td>
+                <td class="text-center"><input type="radio" name="med_gestante" value="sim"></td>
+                <td class="text-center"><input type="radio" name="med_gestante" value="nao" checked></td>
+                <td><input type="text" class="table-input" placeholder="Idade gestacional (semanas)"></td>
               </tr>
             </tbody>
           </table>
         </div>
+
+        <!-- TERMO DE VERACIDADE E CONSENTIMENTO INFORMADO -->
+        <div class="legal-box consent-section">
+          <h3 class="consent-title">Termo de Veracidade e Consentimento Informado</h3>
+          
+          <div class="consent-text">
+            <p>
+              <strong>1. Veracidade das Informações:</strong> Declaro que todas as respostas fornecidas no presente questionário de anamnese e histórico médico são fiéis à verdade e completas, não tendo omitido ou falseado qualquer dado relevante sobre o meu estado geral de saúde, tratamentos médicos pregressos ou vigentes, medicamentos em uso contínuo, alergias ou reações adversas anteriores. Comprometo-me formalmente a comunicar à equipa clínica qualquer alteração subsequente no meu estado de saúde ou posologia medicamentosa antes de cada atendimento.
+            </p>
+            <p>
+              <strong>2. Ciência de Riscos e Intercorrências:</strong> Fui devidamente informado(a) e esclarecido(a) quanto aos diagnósticos apurados, aos riscos biológicos inerentes aos procedimentos odontológicos propostos (tais como sensibilidade dentária transitória, edema, hematomas, parestesias temporárias ou eventuais intercorrências anestésicas) e às alternativas terapêuticas cabíveis.
+            </p>
+            <p>
+              <strong>3. Consentimento e LGPD:</strong> Autorizo o Cirurgião-Dentista responsável e a sua equipa clínica a executarem os procedimentos diagnósticos, exames radiográficos e condutas clínicas necessárias. Autorizo igualmente o tratamento confidencial dos meus dados cadastrais e de saúde, salvaguardados pelo sigilo profissional ético e em conformidade com a legislação de proteção de dados.
+            </p>
+          </div>
+
+          <div class="consent-date-location">
+            <span>Fortaleza - CE, </span>
+            <input type="text" class="input-inline-date" id="termoDataLocal" placeholder="____ de _________________ de 2026">
+          </div>
+
+          <div class="signatures-grid">
+            <div class="sig-line">
+              <div class="line"></div>
+              <span class="sig-name" id="sigPacienteNome">Assinatura do Paciente / Responsável Legal</span>
+              <span class="sig-doc">CPF / Grau de Parentesco: ____________________</span>
+            </div>
+            <div class="sig-line">
+              <div class="line"></div>
+              <span class="sig-name">Dr. Pedro Sindeaux Pinheiro</span>
+              <span class="sig-doc">Cirurgião-Dentista — CRO CE 10096</span>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- ABA 2: ODONTOGRAMA & ORÇAMENTO -->
+      <main id="tab-odontograma" class="tab-content">
+        <section class="kpi-panel">
+          <div class="kpi-card">
+            <span class="kpi-title">Valor Total do Plano</span>
+            <span class="kpi-value" id="kpiTotal">R$ 0,00</span>
+          </div>
+          <div class="kpi-card executed">
+            <span class="kpi-title">Executado (Concluído)</span>
+            <span class="kpi-value" id="kpiExecutado">R$ 0,00</span>
+          </div>
+          <div class="kpi-card pending">
+            <span class="kpi-title">Saldo Restante</span>
+            <span class="kpi-value" id="kpiPendente">R$ 0,00</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-title">Progresso do Tratamento</span>
+            <span class="kpi-value" id="kpiPercent">0%</span>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="progressBar"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-box">
+          <div class="section-header-flex">
+            <h2 class="section-title">Odontograma & Registro por Elemento</h2>
+            <span class="tag-badge">FDI (2 Dígitos)</span>
+          </div>
+
+          <div class="odontograma-cols">
+            <div class="quadrante-col">
+              <h3 class="col-title">Arcada Superior Direita (Q1)</h3>
+              <div class="dentes-list" id="q1List"></div>
+
+              <h3 class="col-title" style="margin-top: 24px;">Arcada Inferior Direita (Q4)</h3>
+              <div class="dentes-list" id="q4List"></div>
+            </div>
+
+            <div class="quadrante-col">
+              <h3 class="col-title">Arcada Superior Esquerda (Q2)</h3>
+              <div class="dentes-list" id="q2List"></div>
+
+              <h3 class="col-title" style="margin-top: 24px;">Arcada Inferior Esquerda (Q3)</h3>
+              <div class="dentes-list" id="q3List"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-box">
+          <div class="section-header-flex">
+            <h2 class="section-title">Outros Procedimentos Globais</h2>
+            <button type="button" id="btnAddExtra" class="btn btn-sm btn-outline-primary no-print">+ Adicionar Procedimento</button>
+          </div>
+          <div id="extraProceduresList" class="extra-list"></div>
+        </section>
+
+        <section class="payment-box">
+          <div class="payment-fields">
+            <div class="form-group">
+              <label for="condicaoPgto">Condições de Pagamento / Parcelamento:</label>
+              <input type="text" id="condicaoPgto" placeholder="Ex.: Entrada de 50% + 3x no cartão de crédito sem juros">
+            </div>
+            <div class="form-group">
+              <label for="descontoReais">Desconto Concedido (R$):</label>
+              <input type="number" id="descontoReais" step="0.01" min="0" value="0.00">
+            </div>
+          </div>
+          <div class="payment-summary">
+            <p>Subtotal Bruto: <strong id="lblSubtotal">R$ 0,00</strong></p>
+            <p>Desconto Aplicado: <strong id="lblDesconto">R$ 0,00</strong></p>
+            <p class="final-price">Total Líquido do Tratamento: <strong id="lblLiquido">R$ 0,00</strong></p>
+          </div>
+        </section>
+
+        <div class="legal-box">
+          <p><strong>Aprovação do Plano de Tratamento:</strong> Declaro que tomei conhecimento de todas as opções de tratamento, valores propostos e prazos previstos, estando de pleno acordo com as condições estipuladas.</p>
+          <div class="signatures-grid">
+            <div class="sig-line">
+              <div class="line"></div>
+              <span>Assinatura do Paciente / Responsável</span>
+            </div>
+            <div class="sig-line">
+              <div class="line"></div>
+              <span>Dr. Pedro Sindeaux Pinheiro - CRO CE 10096</span>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- ABA: EVOLUÇÃO CLÍNICA -->
+      <main id="tab-evolucao" class="tab-content">
+        <div class="section-box no-print">
+          <div class="section-header-flex">
+            <h2 class="section-title" id="tituloFormEvolucao">Nova Evolução Clínica</h2>
+            <span class="tag-badge" id="badgeModoEvolucao">Novo Registro</span>
+          </div>
+
+          <div class="evolucao-form-grid">
+            <div class="form-group">
+              <label for="evolucaoData">Data do Atendimento:</label>
+              <input type="date" id="evolucaoData">
+            </div>
+            <div class="form-group col-span-3">
+              <label for="evolucaoTexto">Descrição do Procedimento / Evolução Clínica:</label>
+              <textarea id="evolucaoTexto" class="doc-textarea" rows="4" placeholder="Descreva o que foi realizado na sessão, materiais utilizados, medicação intracanal, anestésico, orientações pós-operatórias, etc..."></textarea>
+            </div>
+          </div>
+
+          <div class="evolucao-form-actions">
+            <button type="button" id="btnCancelarEdicaoEvolucao" class="btn btn-outline-danger" style="display: none;">Cancelar Edição</button>
+            <button type="button" id="btnSalvarEvolucao" class="btn btn-primary">💾 Salvar Evolução</button>
+          </div>
+        </div>
+
+        <div class="section-box">
+          <div class="section-header-flex">
+            <h2 class="section-title">Histórico de Evoluções do Paciente</h2>
+            <span class="tag-badge" id="badgeTotalEvolucoes">0 registros</span>
+          </div>
+
+          <div class="print-only-header" style="display: none; margin-bottom: 16px; border-bottom: 2px solid var(--primary); padding-bottom: 8px;">
+            <h3 style="color: var(--primary);">Dr. Pedro Sindeaux Pinheiro — CRO CE 10096</h3>
+            <p style="font-size: 13px;"><strong>Paciente:</strong> <span class="bind-nome"></span> | <strong>CPF:</strong> <span class="bind-cpf"></span></p>
+          </div>
+
+          <div id="listaEvolucoesContainer" class="evolucoes-list">
+            <p class="text-center text-muted" style="padding: 24px;">Nenhuma evolução clínica registrada para este paciente.</p>
+          </div>
+        </div>
+      </main>
+
+      <!-- ABA 3: RECEITUÁRIO COMUM -->
+      <main id="tab-receituario-comum" class="tab-content doc-page doc-portrait">
+        <div class="doc-header">
+          <img src="logo.png" alt="Logótipo" class="doc-logo" onerror="this.style.display='none'">
+          <div class="doc-dentist-info">
+            <h2>Dr. Pedro Sindeaux Pinheiro</h2>
+            <p class="cro">Cirurgião-Dentista — CRO CE 10096</p>
+            <p class="subtitle">Cirurgia, Prótese e Clínica Dentária</p>
+            <p class="doc-address">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | Tel/WhatsApp: (85) 92001-0167</p>
+          </div>
+        </div>
+
+        <div class="doc-actions-bar no-print">
+          <button type="button" class="btn btn-outline-primary" id="btnArquivarReceitaComum">
+            💾 Arquivar este Receituário em Documentos
+          </button>
+        </div>
+
+        <div class="doc-title-bar">
+          <h3>RECEITUÁRIO ODONTOLÓGICO</h3>
+        </div>
+
+        <div class="doc-patient-info">
+          <p><strong>Paciente:</strong> <span class="bind-nome">____________________________________________________</span></p>
+        </div>
+
+        <!-- BANCO INTELIGENTE DE MEDICAÇÕES (COMUM) -->
+        <div class="med-smart-bar no-print">
+          <div class="med-smart-top">
+            <span class="med-smart-label">💊 Medicações & Posologias Salvas</span>
+            <div class="med-smart-links">
+              <button type="button" id="btnSalvarModeloComum" class="btn-link-smart">⭐ Salvar Itens no Banco</button>
+              <button type="button" id="btnGerenciarModelosComum" class="btn-link-smart">⚙️ Gerenciar Modelos</button>
+            </div>
+          </div>
+          <div class="med-smart-controls">
+            <select id="selectMedComum" class="med-select">
+              <option value="">Selecione uma medicação salva...</option>
+            </select>
+            <button type="button" id="btnInserirMedComum" class="btn btn-primary btn-sm">+ Inserir na Receita</button>
+            <button type="button" id="btnLimparReceitaComum" class="btn btn-outline-danger btn-sm">Limpar</button>
+          </div>
+        </div>
+
+        <div class="prescription-body">
+          <label class="doc-field-label no-print" for="rcPrescricao">Prescrição e Posologia:</label>
+          <textarea id="rcPrescricao" class="doc-textarea" rows="12" placeholder="Selecione uma medicação acima ou digite a prescrição...&#10;&#10;Uso Interno:&#10;1. Dipirona Monoidratada 500mg ------ 1 caixa&#10;   Tomar 1 comprimido via oral de 6 em 6 horas em caso de dor."></textarea>
+        </div>
+
+        <div class="doc-footer">
+          <div class="doc-date-city">
+            Fortaleza - CE, <span class="bind-data-atual"></span>
+          </div>
+          <div class="doc-sig-box">
+            <div class="doc-sig-line"></div>
+            <strong>Dr. Pedro Sindeaux Pinheiro</strong>
+            <span>CRO CE 10096</span>
+          </div>
+        </div>
+      </main>
+
+      <!-- ABA 4: RECEITUÁRIO ESPECIAL (2 VIAS LADO A LADO - PAISAGEM) -->
+      <main id="tab-receituario-controlado" class="tab-content doc-landscape-container">
+        <div class="doc-actions-bar no-print" style="margin-bottom: 12px;">
+          <button type="button" class="btn btn-outline-primary" id="btnArquivarReceitaEspecial">
+            💾 Arquivar Receituário Especial em Documentos
+          </button>
+        </div>
+
+        <!-- BANCO INTELIGENTE DE MEDICAÇÕES (ESPECIAL / ANTIMICROBIANOS) -->
+        <div class="med-smart-bar no-print" style="margin-bottom: 16px;">
+          <div class="med-smart-top">
+            <span class="med-smart-label">💊 Antimicrobianos & Controle Especial Salvos</span>
+            <div class="med-smart-links">
+              <button type="button" id="btnSalvarModeloEspecial" class="btn-link-smart">⭐ Salvar Itens no Banco</button>
+              <button type="button" id="btnGerenciarModelosEspecial" class="btn-link-smart">⚙️ Gerenciar Modelos</button>
+            </div>
+          </div>
+          <div class="med-smart-controls">
+            <select id="selectMedEspecial" class="med-select">
+              <option value="">Selecione um antimicrobiano/controlado salvo...</option>
+            </select>
+            <button type="button" id="btnInserirMedEspecial" class="btn btn-primary btn-sm">+ Inserir nas 2 Vias</button>
+            <button type="button" id="btnLimparReceitaEspecial" class="btn btn-outline-danger btn-sm">Limpar</button>
+          </div>
+        </div>
+
+        <div class="landscape-sheet">
+          <!-- 1ª VIA: FARMÁCIA -->
+          <div class="via-column via-farmacia">
+            <div class="doc-header mini">
+              <img src="logo.png" alt="Logótipo" class="doc-logo-mini" onerror="this.style.display='none'">
+              <div class="doc-dentist-info">
+                <h2>Dr. Pedro Sindeaux Pinheiro</h2>
+                <p class="cro">CRO CE 10096 — Cirurgia, Prótese e Clínica Dentária</p>
+                <p class="doc-address mini">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | (85) 92001-0167</p>
+              </div>
+            </div>
+            <div class="via-tag">1ª VIA — RETENÇÃO DA FARMÁCIA</div>
+            <div class="doc-title-bar mini">
+              <h3>RECEITA DE CONTROLE ESPECIAL</h3>
+            </div>
+
+            <div class="doc-patient-card-mini">
+              <p><strong>Paciente:</strong> <span class="bind-nome"></span></p>
+              <p><strong>CPF:</strong> <span class="bind-cpf"></span> | <strong>Idade:</strong> <span class="bind-idade"></span></p>
+              <p><strong>Endereço:</strong> <span class="bind-endereco"></span></p>
+            </div>
+
+            <div class="prescription-body-mini">
+              <textarea id="rePrescricaoVia1" class="doc-textarea mini bind-antibiotico-text" rows="7" placeholder="Prescrição do Medicamento Controlado:&#10;1. Amoxicilina 500mg ------------------ 21 cápsulas&#10;   Tomar 1 cápsula via oral de 8 em 8 horas por 7 dias."></textarea>
+            </div>
+
+            <div class="doc-date-city mini">Fortaleza - CE, <span class="bind-data-atual"></span></div>
+
+            <div class="doc-sig-box mini">
+              <div class="doc-sig-line"></div>
+              <strong>Dr. Pedro Sindeaux Pinheiro</strong>
+              <span>Cirurgião-Dentista — CRO CE 10096</span>
+            </div>
+
+            <div class="rdc-anvisa-box">
+              <div class="rdc-section">
+                <span class="rdc-title">IDENTIFICAÇÃO DO COMPRADOR</span>
+                <p>Nome: ____________________________________</p>
+                <p>RG/Órgão: ________________ CPF: ____________</p>
+                <p>Endereço: _________________________________</p>
+                <p>Telefone: _________________ Assinatura: _______</p>
+              </div>
+              <div class="rdc-section">
+                <span class="rdc-title">IDENTIFICAÇÃO DO FORNECEDOR</span>
+                <p>Data do Atendimento: _____/_____/2026</p>
+                <p>Farmacêutico(a): ___________________________</p>
+                <p>Lote / Validade: ____________________________</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2ª VIA: PACIENTE -->
+          <div class="via-column via-paciente">
+            <div class="doc-header mini">
+              <img src="logo.png" alt="Logótipo" class="doc-logo-mini" onerror="this.style.display='none'">
+              <div class="doc-dentist-info">
+                <h2>Dr. Pedro Sindeaux Pinheiro</h2>
+                <p class="cro">CRO CE 10096 — Cirurgia, Prótese e Clínica Dentária</p>
+                <p class="doc-address mini">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | (85) 92001-0167</p>
+              </div>
+            </div>
+            <div class="via-tag">2ª VIA — ORIENTAÇÃO DO PACIENTE</div>
+            <div class="doc-title-bar mini">
+              <h3>RECEITA DE CONTROLE ESPECIAL</h3>
+            </div>
+
+            <div class="doc-patient-card-mini">
+              <p><strong>Paciente:</strong> <span class="bind-nome"></span></p>
+              <p><strong>CPF:</strong> <span class="bind-cpf"></span> | <strong>Idade:</strong> <span class="bind-idade"></span></p>
+              <p><strong>Endereço:</strong> <span class="bind-endereco"></span></p>
+            </div>
+
+            <div class="prescription-body-mini">
+              <textarea id="rePrescricaoVia2" class="doc-textarea mini bind-antibiotico-text" rows="11" placeholder="Orientações e cuidados para o paciente tomar o medicamento nos horários corretos sem interromper o tratamento..."></textarea>
+            </div>
+
+            <div class="patient-note-box">
+              <p><strong>Atenção:</strong> Respeite rigorosamente os horários e tome o medicamento durante todo o período determinado, mesmo que os sintomas desapareçam antes.</p>
+            </div>
+
+            <div class="doc-date-city mini">Fortaleza - CE, <span class="bind-data-atual"></span></div>
+
+            <div class="doc-sig-box mini">
+              <div class="doc-sig-line"></div>
+              <strong>Dr. Pedro Sindeaux Pinheiro</strong>
+              <span>Cirurgião-Dentista — CRO CE 10096</span>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- ABA 5: ATESTADO ODONTOLÓGICO -->
+      <main id="tab-atestado" class="tab-content doc-page doc-portrait">
+        <div class="doc-header">
+          <img src="logo.png" alt="Logótipo" class="doc-logo" onerror="this.style.display='none'">
+          <div class="doc-dentist-info">
+            <h2>Dr. Pedro Sindeaux Pinheiro</h2>
+            <p class="cro">Cirurgião-Dentista — CRO CE 10096</p>
+            <p class="subtitle">Cirurgia, Prótese e Clínica Dentária</p>
+            <p class="doc-address">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | Tel/WhatsApp: (85) 92001-0167</p>
+          </div>
+        </div>
+
+        <div class="doc-actions-bar no-print">
+          <button type="button" class="btn btn-outline-primary" id="btnArquivarAtestado">
+            💾 Arquivar este Atestado em Documentos
+          </button>
+        </div>
+
+        <div class="doc-title-bar">
+          <h3>ATESTADO ODONTOLÓGICO</h3>
+        </div>
+
+        <div class="doc-body-text">
+          <p class="atestado-p">
+            Atesto para os devidos fins que o(a) Sr.(a) <strong class="bind-nome">___________________________________</strong>, portador(a) do documento de identidade/CPF nº <strong class="bind-cpf">__________________</strong>, esteve sob os meus cuidados profissionais no dia de hoje, tendo sido submetido(a) a intervenção odontológica especializada, necessitando de <input type="number" id="atDias" value="1" min="1" class="doc-inline-input" style="width: 50px;"> dia(s) de repouso e convalescença para a sua recuperação, a contar a partir de <input type="date" id="atDataInicio" class="doc-inline-input">.
+          </p>
+
+          <div class="cid-group">
+            <label>
+              <input type="checkbox" id="chkCid"> Autorizo a inclusão do código da Classificação Internacional de Doenças (CID-10) neste atestado.
+            </label>
+            <div id="cidInputBox" style="display: none; margin-top: 8px;">
+              <span>Código CID-10: </span>
+              <input type="text" id="txtCid" class="doc-inline-input" placeholder="Ex.: K04.0 (Pulpite) / K01.1 (Dentes inclusos)" style="width: 320px;">
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-footer">
+          <div class="doc-date-city">
+            Fortaleza - CE, <span class="bind-data-atual"></span>
+          </div>
+          <div class="doc-sig-box">
+            <div class="doc-sig-line"></div>
+            <strong>Dr. Pedro Sindeaux Pinheiro</strong>
+            <span>CRO CE 10096</span>
+          </div>
+        </div>
+      </main>
+
+      <!-- ABA 6: DECLARAÇÃO DE COMPARECIMENTO -->
+      <main id="tab-declaracao" class="tab-content doc-page doc-portrait">
+        <div class="doc-header">
+          <img src="logo.png" alt="Logótipo" class="doc-logo" onerror="this.style.display='none'">
+          <div class="doc-dentist-info">
+            <h2>Dr. Pedro Sindeaux Pinheiro</h2>
+            <p class="cro">Cirurgião-Dentista — CRO CE 10096</p>
+            <p class="subtitle">Cirurgia, Prótese e Clínica Dentária</p>
+            <p class="doc-address">Av. Oscar Araripe, 2096 — Granja Lisboa, Fortaleza - CE | Tel/WhatsApp: (85) 92001-0167</p>
+          </div>
+        </div>
+
+        <div class="doc-actions-bar no-print">
+          <button type="button" class="btn btn-outline-primary" id="btnArquivarDeclaracao">
+            💾 Arquivar esta Declaração em Documentos
+          </button>
+        </div>
+
+        <div class="doc-title-bar">
+          <h3>DECLARAÇÃO DE COMPARECIMENTO</h3>
+        </div>
+
+        <div class="doc-body-text">
+          <p class="atestado-p">
+            Declaro para os devidos fins de comprovação que o(a) Sr.(a) <strong class="bind-nome">___________________________________</strong>, portador(a) do documento/CPF nº <strong class="bind-cpf">__________________</strong>, compareceu a esta clínica odontológica na presente data para realização de consulta e procedimentos clínicos, tendo permanecido nas dependências do consultório no seguinte intervalo:
+          </p>
+          <div class="horario-box">
+            <span>Horário de Início: </span>
+            <input type="time" id="decHoraIni" class="doc-inline-input" value="14:00">
+            <span style="margin-left: 20px;">Horário de Término: </span>
+            <input type="time" id="decHoraFim" class="doc-inline-input" value="15:30">
+          </div>
+          <p class="doc-disclaimer-sub">
+            A presente declaração serve estritamente para justificar o período em que o paciente esteve em atendimento clínico, não concedendo dispensa de jornada integral.
+          </p>
+        </div>
+
+        <div class="doc-footer">
+          <div class="doc-date-city">
+            Fortaleza - CE, <span class="bind-data-atual"></span>
+          </div>
+          <div class="doc-sig-box">
+            <div class="doc-sig-line"></div>
+            <strong>Dr. Pedro Sindeaux Pinheiro</strong>
+            <span>CRO CE 10096</span>
+          </div>
+        </div>
+      </main>
+
+      <!-- ABA 7: GESTÃO DE DOCUMENTOS E EXAMES -->
+      <main id="tab-documentos" class="tab-content">
+        <div class="section-box no-print">
+          <div class="section-header-flex">
+            <h2 class="section-title">Anexar Exame Externo (Radiografia, Tomografia, PDF)</h2>
+          </div>
+
+          <div class="upload-panel-grid">
+            <div class="form-group">
+              <label for="docTipoUpload">Tipo de Arquivo:</label>
+              <select id="docTipoUpload">
+                <option value="Radiografia Panorâmica">Radiografia Panorâmica</option>
+                <option value="Tomografia / Cone Beam">Tomografia / Laudo TC</option>
+                <option value="Radiografia Periapical">Radiografia Periapical / Interproximal</option>
+                <option value="Foto Intraoral">Fotografia Clínica / Intraoral</option>
+                <option value="Exame de Sangue / Geral">Exame Laboratorial / Outros</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="docDescUpload">Descrição / Observação:</label>
+              <input type="text" id="docDescUpload" placeholder="Ex.: Panorâmica inicial pré-extração 38 e 48">
+            </div>
+
+            <div class="form-group">
+              <label for="inputFileExame">Selecione a Imagem ou PDF:</label>
+              <input type="file" id="inputFileExame" accept="image/*,application/pdf">
+            </div>
+
+            <div class="upload-btn-wrap">
+              <button type="button" id="btnUploadDoc" class="btn btn-primary" style="height: 38px; margin-top: 18px;">
+                + Adicionar ao Prontuário
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-box">
+          <div class="section-header-flex">
+            <h2 class="section-title">Histórico de Documentos e Exames Anexados</h2>
+            <span class="tag-badge" id="badgeTotalDocs">0 itens vinculados</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="docs-table">
+              <thead>
+                <tr>
+                  <th style="width: 130px;">Data / Hora</th>
+                  <th style="width: 180px;">Categoria</th>
+                  <th>Descrição / Resumo do Conteúdo</th>
+                  <th style="width: 160px; text-align: center;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="listaDocumentosTbody">
+                <tr>
+                  <td colspan="4" class="text-center text-muted" style="padding: 24px;">Nenhum documento ou exame gravado para este paciente.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL: AGENDAR CONSULTA / GERENCIAR DIA DO CALENDÁRIO -->
+  <div id="modalAgendaDia" class="modal-overlay no-print" style="display: none;">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <div>
+          <h2 id="tituloModalAgenda">Agendamentos do Dia</h2>
+          <p class="modal-subtitle" id="subtituloModalAgenda">Clique no paciente para abrir o prontuário ou adicione um horário</p>
+        </div>
+        <button type="button" id="btnFecharModalAgenda" class="btn-close-modal" title="Fechar">&times;</button>
       </div>
-    </main>
+
+      <div class="modal-body">
+        <!-- Formulário de Novo Agendamento -->
+        <div class="section-box" style="padding: 14px; margin-bottom: 16px; background: #f8fafc;">
+          <div class="form-grid" style="grid-template-columns: 140px 110px 1fr;">
+            <div class="form-group">
+              <label for="agDataInput">Data:</label>
+              <input type="date" id="agDataInput">
+            </div>
+            <div class="form-group">
+              <label for="agHoraInput">Horário:</label>
+              <input type="time" id="agHoraInput" value="09:00">
+            </div>
+            <div class="form-group">
+              <label for="agPacienteInput">Paciente (Digite ou selecione): *</label>
+              <input type="text" id="agPacienteInput" list="datalistPacientesAgenda" placeholder="Nome completo do paciente" autocomplete="off">
+              <datalist id="datalistPacientesAgenda"></datalist>
+            </div>
+          </div>
+
+          <div class="form-grid" style="grid-template-columns: 1fr auto; margin-top: 10px; align-items: end;">
+            <div class="form-group">
+              <label for="agObsInput">Procedimento / Observação:</label>
+              <input type="text" id="agObsInput" placeholder="Ex.: Avaliação, Exodontia 38, Prova de Prótese...">
+            </div>
+            <button type="button" id="btnSalvarAgendamento" class="btn btn-primary" style="height: 36px;">+ Agendar Paciente</button>
+          </div>
+        </div>
+
+        <!-- Lista de Agendados na Data -->
+        <h3 style="font-size: 13.5px; color: var(--primary); margin-bottom: 10px;">Pacientes Agendados nesta Data</h3>
+        <div id="listaAgendadosDia" class="evolucoes-list"></div>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL: LISTA DE PACIENTES CADASTRADOS -->
@@ -688,6 +854,39 @@
           </thead>
           <tbody id="tabelaPacientesTbody"></tbody>
         </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GERENCIAR MODELOS DE MEDICAÇÕES -->
+  <div id="modalModelosMed" class="modal-overlay no-print" style="display: none;">
+    <div class="modal-card" style="max-width: 720px;">
+      <div class="modal-header">
+        <div>
+          <h2 id="tituloModalModelos">Gerenciar Modelos de Medicações</h2>
+          <p class="modal-subtitle">Adicione, edite ou exclua suas prescrições padrão</p>
+        </div>
+        <button type="button" id="btnFecharModalModelos" class="btn-close-modal" title="Fechar">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="section-box" style="padding: 14px; margin-bottom: 16px; background: #f8fafc;">
+          <input type="hidden" id="editModeloId">
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label for="modeloTituloInput">Nome Curto (Aparece no Menu Suspenso):</label>
+            <input type="text" id="modeloTituloInput" placeholder="Ex.: Dipirona 500mg — Analgésico">
+          </div>
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label for="modeloTextoInput">Texto Completo da Prescrição e Posologia (sem numeração):</label>
+            <textarea id="modeloTextoInput" class="doc-textarea" rows="3" placeholder="Ex.: Dipirona Monoidratada 500mg ------ 1 caixa&#10;   Tomar 1 comprimido via oral de 6 em 6 horas em caso de dor."></textarea>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px;">
+            <button type="button" id="btnCancelarEdicaoModelo" class="btn btn-outline-danger btn-sm" style="display: none;">Cancelar</button>
+            <button type="button" id="btnSalvarNovoModelo" class="btn btn-primary btn-sm">💾 Salvar Modelo</button>
+          </div>
+        </div>
+
+        <div id="listaModelosGerenciar" class="evolucoes-list"></div>
       </div>
     </div>
   </div>
